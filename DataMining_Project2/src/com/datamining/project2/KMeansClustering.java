@@ -1,7 +1,6 @@
 package com.datamining.project2;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,10 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import javax.print.attribute.HashAttributeSet;
-
 import com.datamining.project2Utils.ProjectUtils;
 
 public class KMeansClustering {
@@ -61,13 +56,35 @@ public class KMeansClustering {
 			count++;	
 		}
 		
-		for(int removeKey:removeList){
-			kMeansBasicIteration.remove(removeKey);
-		}
-		
 		for(int key:kMeansBasicIteration.keySet()){
 			int index = ProjectUtils.getClusterWithMaximumProximity(kMeansBasicIteration.get(key), kClusters);
 			kClusters.get(index).put(key, kMeansBasicIteration.get(key));	
+		}
+		
+		List<List<Double>> kCentroids = new ArrayList<List<Double>>();
+		List<List<Double>> prevKCentroids = new ArrayList<List<Double>>();
+		
+		while(true){
+		prevKCentroids.clear();
+		prevKCentroids.addAll(kCentroids);
+		kCentroids.clear();
+		for(int n=0;n<kClusters.size();n++){
+		List<Double> nthCentroid= ProjectUtils.getCentroid(kClusters.get(n));
+		kCentroids.add(nthCentroid);			
+		}
+		
+		if(kCentroids.equals(prevKCentroids)){
+			break;
+		}
+		
+		for(int n=0; n<kClusters.size() ; n++){
+			kClusters.get(n).clear();
+		}
+		
+		for(int key:kMeansBasicIteration.keySet()){
+			int index = ProjectUtils.getClusterWithMaximumProximityToCentroid(kMeansBasicIteration.get(key), kCentroids);
+			kClusters.get(index).put(key, kMeansBasicIteration.get(key));	
+		}
 		}
 		
 		
@@ -83,7 +100,6 @@ public class KMeansClustering {
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-
 		KMeansClustering kMeansClustering = new KMeansClustering(5, "cho.txt");
 		kMeansClustering.runKMeansClusteringAlgorithm();
 
