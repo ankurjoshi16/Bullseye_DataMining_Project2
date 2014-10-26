@@ -94,7 +94,7 @@ public class KMeansClustering {
 		System.out.println(kClusters.get(2).size());
 		System.out.println(kClusters.get(3).size());
 		System.out.println(kClusters.get(4).size());
-
+		//getting results
 
 	}
 
