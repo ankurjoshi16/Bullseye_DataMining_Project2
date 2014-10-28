@@ -80,4 +80,42 @@ public class ProjectUtils {
 		}
 		return centroid;
 	}
+	
+	public static List<List<Double>> getInitialCen(Map<Integer,List<Double>> map, int num){
+    	
+    	List<List<Double>> init = new ArrayList<List<Double>>(num);
+    	
+    	for (int i = 0; i < num; i++) {
+    	    List<Double> list = new ArrayList<Double>();
+    	    init.add(list);
+    	}
+    	
+    	//System.out.println(init.size());
+    	Map.Entry<Integer,List<Double>> nextentry = map.entrySet().iterator().next();
+		int size = (nextentry).getValue().size();
+    	
+		for (int i=0; i<size; i++)
+		{
+			ArrayList<Double> coordinates=new ArrayList<Double>();
+			
+			for (Map.Entry<Integer,List<Double>> entry : map.entrySet()) {
+				coordinates.add(entry.getValue().get(i));
+		    }
+			
+			Double max=Collections.max(coordinates);
+			Double min=Collections.min(coordinates);
+			
+			//System.out.println("Max:"+max+"Min:"+min);
+			Double diff=(max-min)/num;
+			
+			for(List<Double> a: init)
+			{
+				a.add(min);
+				min=min+diff;
+			}
+			
+		}
+    
+    	return init;
+    }
 }
