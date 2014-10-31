@@ -21,7 +21,8 @@ public class DBScanAlgorithm {
 	private int minPoints = 4;
 	private Map<Integer, DataPoint> initialDBScan = new LinkedHashMap<Integer, DataPoint>();
 	private List<LinkedHashMap<Integer, DataPoint>> clusters;
-	private List<Integer> ouliers = new ArrayList<Integer>();
+	private List<Integer> outliers = new ArrayList<Integer>();
+	private List<Integer> clustered = new ArrayList<Integer>();
 
 	private DBScanAlgorithm(String fileName) throws NumberFormatException,
 			IOException {
@@ -81,8 +82,9 @@ public class DBScanAlgorithm {
 				initialDBScan.get(a).isVisited = true;
 				List<Integer> neighborPts = regionQuery(a);
 				if (neighborPts.size() < minPoints) {
+
 					initialDBScan.get(a).isNoise = true;
-					ouliers.add(a);
+					outliers.add(a);
 
 				} else {
 					LinkedHashMap<Integer, DataPoint> nextCluster = new LinkedHashMap<Integer, DataPoint>();
@@ -93,14 +95,20 @@ public class DBScanAlgorithm {
 			}
 
 		}
-		int j = 0;
 		for (int i = 0; i < clusters.size(); i++) {
-			j = j + clusters.get(i).size();
-			System.out.println(clusters.get(i).size()+"   "+clusters.get(i).keySet());
+			System.out.println(clusters.get(i).size() + "   "
+					+ clusters.get(i).keySet());
+			clustered.addAll(clusters.get(i).keySet());
 		}
-		System.out.println("Total points clustered: " + j);
-		//System.out.println(getOuliers().size());
-		
+		System.out.println("Total points clustered: " + clustered.size());
+
+		for (int a : clustered) {
+			if (outliers.contains(a)) {
+				outliers.remove(new Integer(a));
+				initialDBScan.get(a).isNoise=false;
+			}
+		}
+
 	}
 
 	private void expandCluster(int point, List<Integer> neighbors,
@@ -176,18 +184,18 @@ public class DBScanAlgorithm {
 		this.fileName = fileName;
 	}
 
-	public List<Integer> getOuliers() throws NumberFormatException, IOException {
-		ouliers= new ArrayList<Integer>();
+	public List<Integer> getOutliers() throws NumberFormatException, IOException {
+		outliers = new ArrayList<Integer>();
 		runDBScanAlgorithm();
-		return ouliers;
+		return outliers;
 	}
 
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
 		DBScanAlgorithm dbscan = new DBScanAlgorithm("cho.txt");
-		//dbscan.runDBScanAlgorithm();
+		// dbscan.runDBScanAlgorithm();
 		// dbscan.calculateEpsilon();
-		System.out.println(dbscan.getOuliers().size());
+		System.out.println("Total Outliers Found  : "+ dbscan.getOutliers().size());
 
 	}
 
