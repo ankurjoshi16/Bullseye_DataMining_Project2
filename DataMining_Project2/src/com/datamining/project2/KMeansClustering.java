@@ -190,7 +190,7 @@ public class KMeansClustering {
 // 70, 70 ,94,78 ,73
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		KMeansClustering kMeansClustering = new KMeansClustering(10, "iyer.txt");
+		KMeansClustering kMeansClustering = new KMeansClustering(5, "cho.txt");
 		//kMeansClustering.runKMeansClusteringAlgorithm();
 		// kMeansClustering.runKMeansWithPurDataPointsInRandomeClusterInit();
 		kMeansClustering.runKMeansWithDataPointsChoppedInNSlots();
@@ -250,7 +250,7 @@ public class KMeansClustering {
 	}
 
 	public void runKMeansWithDataPointsChoppedInNSlots() {
-
+		int iter=0;
 		List<Map<Integer, List<Double>>> kClusters = new ArrayList<Map<Integer, List<Double>>>();
 		for (int i = 0; i < k; i++) {
 			Map<Integer, List<Double>> singleCluster = new LinkedHashMap<Integer, List<Double>>();
@@ -272,9 +272,8 @@ public class KMeansClustering {
 		List<List<Double>> kCentroids = new ArrayList<List<Double>>();
 		List<List<Double>> prevKCentroids = new ArrayList<List<Double>>();
 		double[] sseCompare = new double[2];
-		System.out.println(sseCompare[0]);
 		while (true) {
-			
+			System.out.println(iter++);
 			prevKCentroids.clear();
 			prevKCentroids.addAll(kCentroids);
 			kCentroids.clear();
@@ -307,6 +306,7 @@ public class KMeansClustering {
 			}else{
 				sseCompare[1]=sse;
 				if(sseCompare[0]-sseCompare[1]<0.02){
+					System.out.println("Great" + sseCompare[0]);
 					break;
 				}
 				else{

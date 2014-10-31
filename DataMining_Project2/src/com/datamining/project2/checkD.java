@@ -1,12 +1,19 @@
 package com.datamining.project2;
 
+import java.util.ArrayList;
+
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
 
 public class checkD {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		String temp = "1|2|5|4|9";
+		String[] rowNums = temp.split("\\|");
+		
+		for(int i=0;i<5;i++){
+		System.out.println(rowNums[i]);
+		}
 		
 		 double[] gTMean1 = { -0.013477612, -0.236238806, -0.527208955,
 		 -0.614208955, -0.497820896, -0.405029851, -0.364268657, -0.107164179,

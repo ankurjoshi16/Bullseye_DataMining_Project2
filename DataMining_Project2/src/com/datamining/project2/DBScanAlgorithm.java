@@ -1,10 +1,7 @@
 package com.datamining.project2;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -17,58 +14,16 @@ import com.datamining.project2Utils.ProjectUtils;
 public class DBScanAlgorithm {
 
 	private String fileName;
-	private double epsilon = 0.265;
+	private double epsilon = 1.06;
 	private int minPoints = 4;
-	private Map<Integer, DataPoint> initialDBScan = new LinkedHashMap<Integer, DataPoint>();
+	private Map<Integer, DataPoint> initialDBScan;
 	private List<LinkedHashMap<Integer, DataPoint>> clusters;
 	private List<Integer> outliers = new ArrayList<Integer>();
 	private List<Integer> clustered = new ArrayList<Integer>();
 
 	private DBScanAlgorithm(String fileName) throws NumberFormatException,
 			IOException {
-		this.fileName = fileName;
-		String readLine;
-		DataPoint dp;
-		FileReader fileReader = new FileReader(fileName);
-		BufferedReader bufferedReader = new BufferedReader(fileReader);
-		List<Double> tempList;
-		while ((readLine = bufferedReader.readLine()) != null) {
-			String[] tempArray = readLine.split("\t");
-			int tempKey = Integer.parseInt(tempArray[0]);
-			tempList = new LinkedList<Double>();
-			for (int i = 2; i < tempArray.length; i++) {
-				tempList.add(Double.parseDouble(tempArray[i]));
-			}
-			dp = new DataPoint();
-			dp.setCoordinates(tempList);
-			dp.setIndex(tempKey);
-			initialDBScan.put(tempKey, dp);
-
-		}
-		bufferedReader.close();
-
-		List<List<Double>> basicList = new ArrayList<List<Double>>();
-
-		for (DataPoint tm : initialDBScan.values()) {
-			basicList.add(tm.getCoordinates());
-		}
-		for (int i = 0; i < basicList.get(0).size(); i++) {
-			List<Double> tList = new ArrayList<Double>();
-			for (List<Double> ltp : basicList) {
-				tList.add(ltp.get(i));
-			}
-
-			double min = Collections.min(tList);
-			double max = Collections.max(tList);
-			if (max != min) {
-				for (List<Double> ltp : basicList) {
-					double temp = ltp.get(i);
-					double norm = (temp - min) / (max - min);
-					ltp.remove(i);
-					ltp.add(i, norm);
-				}
-			}
-		}
+		initialDBScan = ProjectUtils.readFileToInitialMap(fileName);
 	}
 
 	public void runDBScanAlgorithm() throws NumberFormatException, IOException {

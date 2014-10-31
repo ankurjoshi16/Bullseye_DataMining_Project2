@@ -298,6 +298,7 @@ public class ProjectUtils {
 				sse = sse
 						+ getSquaredError(dp.getCoordinates(),
 								kmc.getCentriod());
+				//System.out.println(sse);
 			}
 		}
 
