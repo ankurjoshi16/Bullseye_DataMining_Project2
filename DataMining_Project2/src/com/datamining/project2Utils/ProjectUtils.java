@@ -16,7 +16,7 @@ import java.util.Map;
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
 
 import com.datamining.project2.DataPoint;
-import com.datamining.project2.KMeansCluster;
+import com.datamining.project2.ProjectCluster;
 
 public class ProjectUtils {
 
@@ -290,10 +290,10 @@ public class ProjectUtils {
 		return initialMap;
 	}
 
-	public static double getSSE(List<KMeansCluster> clusters) {
+	public static double getSSE(List<ProjectCluster> clusters) {
 
 		double sse = 0;
-		for (KMeansCluster kmc : clusters) {
+		for (ProjectCluster kmc : clusters) {
 			for (DataPoint dp : kmc.getAllClusterPoints()) {
 				sse = sse
 						+ getSquaredError(dp.getCoordinates(),

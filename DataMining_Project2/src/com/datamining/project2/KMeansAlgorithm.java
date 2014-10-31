@@ -12,7 +12,7 @@ public class KMeansAlgorithm {
 
 	private double sse;
 	private int iterations;
-	private List<KMeansCluster> clusters;
+	private List<ProjectCluster> clusters;
 	private Map<Integer, DataPoint> initialKMeans;
 
 	public KMeansAlgorithm(String fileName, int numOfClusters,
@@ -22,9 +22,9 @@ public class KMeansAlgorithm {
 		this.iterations = iterations;
 		initialKMeans = ProjectUtils.readFileToInitialMapNorm(fileName);
 		String[] rowNums = pipeDelimRowNums.split("\\|");
-		clusters = new ArrayList<KMeansCluster>();
+		clusters = new ArrayList<ProjectCluster>();
 		for (int i = 0; i < numOfClusters; i++) {
-			KMeansCluster kmc = new KMeansCluster(initialKMeans.get(
+			ProjectCluster kmc = new ProjectCluster(initialKMeans.get(
 					Integer.parseInt(rowNums[i])).getCoordinates());
 			clusters.add(kmc);
 		}
@@ -51,9 +51,9 @@ public class KMeansAlgorithm {
 							.size() > 0)) {
 				break;
 			}
-			List<KMeansCluster> clusters2 = new ArrayList<KMeansCluster>();
+			List<ProjectCluster> clusters2 = new ArrayList<ProjectCluster>();
 			for (int i = 0; i < clusters.size(); i++) {
-				KMeansCluster kmc = new KMeansCluster(clusters.get(i)
+				ProjectCluster kmc = new ProjectCluster(clusters.get(i)
 						.getFinalCentriod());
 				clusters2.add(kmc);
 			}
