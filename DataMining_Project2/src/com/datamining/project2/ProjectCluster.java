@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class KMeansCluster {
+public class ProjectCluster {
 
 	private List<Double> centriod;
 	private List<DataPoint> clusterPoints = new ArrayList<DataPoint>();
+	public double minDiff;
 
-	public KMeansCluster(List<Double> centriod) {
+	public ProjectCluster(List<Double> centriod) {
 		this.centriod = centriod;
 		clusterPoints = new ArrayList<DataPoint>();
 	}
@@ -54,6 +55,10 @@ public class KMeansCluster {
 			centroid.add(sum);
 		}
 		return centroid;
+	}
+	
+	public void getMinDiff(List<ProjectCluster> ip){
+		
 	}
 
 }
