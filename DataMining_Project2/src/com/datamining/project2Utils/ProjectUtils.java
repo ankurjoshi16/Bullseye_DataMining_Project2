@@ -1,11 +1,17 @@
 package com.datamining.project2Utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.math3.ml.distance.EuclideanDistance;
+
+import com.datamining.project2.DataPoint;
 
 public class ProjectUtils {
 
@@ -20,18 +26,39 @@ public class ProjectUtils {
 		List<Double> tp2 = new ArrayList<Double>();
 		tp2.add(4.0);
 		tp2.add(2.0);
-		
+
 		System.out.println(getEuclideanDistance(tp1, tp2));
 
 	}
 
 	public static double getEuclideanDistance(List<Double> firstList,
 			List<Double> secondList) {
+
 		double sum = 0;
 		for (int i = 0; i < firstList.size(); i++) {
 			sum = sum + Math.pow((firstList.get(i) - secondList.get(i)), 2);
 		}
 		return Math.sqrt(sum);
+
+		/*
+		 * EuclideanDistance ed = new EuclideanDistance(); double[] leftArray =
+		 * new double[firstList.size()]; for (int i = 0; i < firstList.size();
+		 * i++) { leftArray[i] = firstList.get(i); }
+		 * 
+		 * double[] rightArray = new double[secondList.size()]; for (int i = 0;
+		 * i < secondList.size(); i++) { rightArray[i] = secondList.get(i); }
+		 * return ed.compute(leftArray, rightArray);
+		 */
+	}
+
+	public static double getSquaredError(List<Double> firstList,
+			List<Double> secondList) {
+
+		double sum = 0;
+		for (int i = 0; i < firstList.size(); i++) {
+			sum = sum + Math.pow((firstList.get(i) - secondList.get(i)), 2);
+		}
+		return sum;
 	}
 
 	public static int getClusterWithMaximumProximityToCentroid(
@@ -48,10 +75,23 @@ public class ProjectUtils {
 			}
 		}
 		return index;
+
+		/*
+		 * List<Double> allEntries = new LinkedList<Double>();
+		 * 
+		 * for (List<Double> ltp : kCentroids) {
+		 * allEntries.add(getEuclideanDistance(ltp, dataPoint)); } double min =
+		 * Collections.min(allEntries);
+		 * 
+		 * for (int i = 0; i < allEntries.size(); i++) { if (allEntries.get(i)
+		 * == min) { return i; } }
+		 * System.out.println("Yesssssssssssssssssssssss"); return -1;
+		 */
 	}
 
 	public static List<Double> getCentroid(Map<Integer, List<Double>> map) {
 		List<Double> centroid = new ArrayList<Double>();
+
 		Map.Entry<Integer, List<Double>> nextentry = map.entrySet().iterator()
 				.next();
 		int size = (nextentry).getValue().size();
@@ -69,46 +109,125 @@ public class ProjectUtils {
 		}
 		return centroid;
 	}
-	
-	public static List<List<Double>> getInitialCen(Map<Integer,List<Double>> map, int num){
-    	
-    	List<List<Double>> init = new ArrayList<List<Double>>(num);
-    	
-    	for (int i = 0; i < num; i++) {
-    	    List<Double> list = new ArrayList<Double>();
-    	    init.add(list);
-    	}
-    	
-    	//System.out.println(init.size());
-    	Map.Entry<Integer,List<Double>> nextentry = map.entrySet().iterator().next();
-		int size = (nextentry).getValue().size();
-    	
-		for (int i=0; i<size; i++)
-		{
-			ArrayList<Double> coordinates=new ArrayList<Double>();
-			
-			for (Map.Entry<Integer,List<Double>> entry : map.entrySet()) {
-				coordinates.add(entry.getValue().get(i));
-		    }
-			
-			Double max=Collections.max(coordinates);
-			Double min=Collections.min(coordinates);
-			
-			//System.out.println("Max:"+max+"Min:"+min);
-			Double diff=(max-min)/num;
-			
-			for(List<Double> a: init)
-			{
-				a.add(min);
-				min=min+diff;
-			}
-			
-		}
-    
-    	return init;
-    }
 
-	
-	
-	
+	public static List<Double> getCentroidWithDataPoints(
+			Map<Integer, DataPoint> map) {
+		List<Double> centroid = new ArrayList<Double>();
+
+		Map.Entry<Integer, DataPoint> nextentry = map.entrySet().iterator()
+				.next();
+		int size = (nextentry).getValue().getCoordinates().size();
+		for (int i = 0; i < size; i++) {
+			double[] coordinates = new double[map.size()];
+			int k = 0;
+			Double sum = 0.0;
+			for (Map.Entry<Integer, DataPoint> entry : map.entrySet()) {
+				coordinates[k++] = entry.getValue().getCoordinates().get(i);
+			}
+			for (int j = 0; j < coordinates.length; j++)
+				sum += coordinates[j];
+			sum = sum / coordinates.length;
+			centroid.add(sum);
+		}
+		return centroid;
+	}
+
+	/*
+	 * public static List<Double> getCentroid(Collection<List<Double>> input) {
+	 * 
+	 * List<List<Double>> inputList = new LinkedList<List<Double>>(input);
+	 * List<Double> centroid = new ArrayList<Double>();
+	 * 
+	 * int listSize = inputList.get(0).size();
+	 * 
+	 * for (int i = 0; i < listSize; i++) { double sum = 0; for (int j = 0; j <
+	 * inputList.size(); j++) { sum = sum + inputList.get(j).get(i); }
+	 * centroid.add(sum / inputList.size()); } return centroid; }
+	 */
+
+	public static List<List<Double>> getInitialCentroids(
+			Map<Integer, List<Double>> map, int num) {
+
+		if (map == null)
+			return null;
+
+		int attr = -1;
+
+		for (Map.Entry<Integer, List<Double>> e : map.entrySet()) {
+			attr = e.getValue().size();
+			break;
+		}
+
+		List<Double[]> setTemp = new ArrayList<Double[]>();
+
+		for (int i = 0; i < attr; i++) {
+			double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
+			double scalingFactor = 0;
+
+			for (List<Double> indexRel : map.values()) {
+
+				double val = indexRel.get(i);
+
+				if (val < min)
+					min = val;
+				if (val > max)
+					max = val;
+			}
+
+			scalingFactor = (max - min) / num;
+			Double[] dTemp = { min, scalingFactor };
+			setTemp.add(dTemp);
+
+		}
+
+		List<List<Double>> returnList = new ArrayList<List<Double>>();
+
+		for (int i = 0; i < num; i++) {
+			List<Double> temp = new ArrayList<>();
+			returnList.add(temp);
+		}
+
+		for (int i = 0; i < attr; i++) {
+			Double[] dTempArray = setTemp.get(i);
+			double min = dTempArray[0];
+			double scale = dTempArray[1];
+			int counter = 0;
+
+			for (List<Double> tempList : returnList) {
+				double value = min + scale * counter;
+				tempList.add(value);
+				counter++;
+
+			}
+
+		}
+
+		return returnList;
+	}
+
+	// returns Epsilon value of all points sorted by distnace
+	public static double getEpsilion(List<Double> distanceList) {
+		if (distanceList == null)
+			return -1;
+		else {
+			Double[] dList = distanceList.toArray(new Double[0]);
+			double maxDiff = Double.MIN_VALUE;
+			int index = -1;
+
+			for (int i = 0; i < dList.length - 1; i++) {
+				double diff = dList[i + 1] - dList[i];
+				if (diff > maxDiff) {
+					maxDiff = diff;
+					index = i;
+				}
+
+			}
+			for (int i = 0; i < dList.length; i++) {
+				// System.out.println(dList[i]);
+			}
+
+			return dList[index];
+		}
+	}
+
 }

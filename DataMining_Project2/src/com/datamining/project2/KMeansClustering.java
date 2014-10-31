@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -39,7 +41,34 @@ public class KMeansClustering {
 				tempList.add(Double.parseDouble(tempArray[i]));
 			}
 			kMeansBasicIteration.put(tempKey, tempList);
+			System.out.println(tempKey+"    "+tempList);
 		}
+		System.out.println(kMeansBasicIteration.size());
+		System.out.println(kMeansBasicIteration);
+
+		
+		List<List<Double>> basicList = new ArrayList<List<Double>>(
+				kMeansBasicIteration.values());
+		System.out.println(basicList.get(0).size());
+
+		for (int i = 0; i < basicList.get(0).size(); i++) {
+			List<Double> tList = new ArrayList<Double>();
+			for (List<Double> ltp : basicList) {
+				tList.add(ltp.get(i));
+			}
+			double sumOfSquares =0;
+			for(double d:tList){
+				sumOfSquares = sumOfSquares + Math.pow(d, 2);
+			}
+			double sumSquareRoot = Math.sqrt(sumOfSquares); 
+			for (List<Double> ltp : basicList) {
+				double temp = ltp.get(i);
+				double norm = (temp) / sumSquareRoot;
+				ltp.remove(i);
+				ltp.add(i, norm);
+			}
+		}
+		System.out.println(kMeansBasicIteration);
 		bufferedReader.close();
 	}
 
@@ -61,7 +90,9 @@ public class KMeansClustering {
 			kClusters.add(singleCluster);
 			count++;
 		}
-
+		for(int i=0;i<kClusters.size();i++){
+			System.out.println(kClusters.get(i).size());
+		}
 		int iteration = 1;
 		while (true) {
 			if (iteration != 1) {
@@ -123,12 +154,8 @@ public class KMeansClustering {
 
 		int iteration = 0;
 
-		for (int i = 0; i < kClusters.size(); i++)
-			System.out.println(kClusters.get(i).keySet().size() + "    "
-					+ kClusters.get(i).keySet());
-
 		while (true) {
-
+			System.out.println(iteration);
 			prevKCentroids.clear();
 			prevKCentroids.addAll(kCentroids);
 			kCentroids.clear();
@@ -158,13 +185,16 @@ public class KMeansClustering {
 			System.out.println(kClusters.get(i).keySet().size() + "    "
 					+ kClusters.get(i).keySet());
 	}
-
+// 67 , 135 , 75 ,54 , 55
+// 58 , 49 , 138 , 91 ,50
+// 70, 70 ,94,78 ,73
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		KMeansClustering kMeansClustering = new KMeansClustering(5, "cho.txt");
-		// kMeansClustering.runKMeansClusteringAlgorithm();
-		//kMeansClustering.runKMeansWithPurDataPointsInRandomeClusterInit();
+		KMeansClustering kMeansClustering = new KMeansClustering(10, "iyer.txt");
+		//kMeansClustering.runKMeansClusteringAlgorithm();
+		// kMeansClustering.runKMeansWithPurDataPointsInRandomeClusterInit();
 		kMeansClustering.runKMeansWithDataPointsChoppedInNSlots();
+		// kMeansClustering.runKMeansWithScaledInitialClusters();
 
 	}
 
@@ -176,18 +206,14 @@ public class KMeansClustering {
 			Map<Integer, List<Double>> singleCluster = new LinkedHashMap<Integer, List<Double>>();
 			kClusters.add(singleCluster);
 		}
-		System.out.println(kMeansBasicIteration.size());
-		List<List<Double>> kCentroids = ProjectUtils.getInitialCen(
+		List<List<Double>> kCentroids = ProjectUtils.getInitialCentroids(
 				kMeansBasicIteration, k);
-		for(List<Double> list: kCentroids){
-			System.out.println();
-		}
+		System.out.println(kCentroids);
 		List<List<Double>> prevKCentroids = new ArrayList<List<Double>>();
 
 		int iteration = 0;
 
 		while (true) {
-			System.out.println("iteration"+iteration);
 			if (iteration != 0) {
 				prevKCentroids.clear();
 				prevKCentroids.addAll(kCentroids);
@@ -213,6 +239,7 @@ public class KMeansClustering {
 								kMeansBasicIteration.get(key), kCentroids);
 				kClusters.get(index).put(key, kMeansBasicIteration.get(key));
 			}
+
 			for (int i = 0; i < kClusters.size(); i++)
 				System.out.println(kClusters.get(i).keySet().size() + "    "
 						+ kClusters.get(i).keySet());
@@ -229,61 +256,81 @@ public class KMeansClustering {
 			Map<Integer, List<Double>> singleCluster = new LinkedHashMap<Integer, List<Double>>();
 			kClusters.add(singleCluster);
 		}
-		int loop =0;
-		int count =0 ;
-		for (int key : kMeansBasicIteration.keySet()) {
+		int loop = 0;
+		int count = 0;
+		for (Integer key : kMeansBasicIteration.keySet()) {
 			count++;
-			if(count>(kMeansBasicIteration.size()/k)*(loop+1)){
+			if (count > (kMeansBasicIteration.size() / k) * (loop + 1)) {
 				loop = loop + 1;
 			}
-			if(loop>kClusters.size()-1){
-				loop = kClusters.size()-1;
+			if (loop > kClusters.size() - 1) {
+				loop = kClusters.size() - 1;
 			}
-			kClusters.get(loop).put(key,
-					kMeansBasicIteration.get(key));
+			kClusters.get(loop).put(key, kMeansBasicIteration.get(key));
 		}
-
+	
 		List<List<Double>> kCentroids = new ArrayList<List<Double>>();
 		List<List<Double>> prevKCentroids = new ArrayList<List<Double>>();
-
+		double[] sseCompare = new double[2];
+		System.out.println(sseCompare[0]);
 		while (true) {
+			
 			prevKCentroids.clear();
 			prevKCentroids.addAll(kCentroids);
 			kCentroids.clear();
-			for (int n = 0; n < kClusters.size(); n++) {
+			for (Integer n = 0; n < kClusters.size(); n++) {
 				List<Double> nthCentroid = ProjectUtils.getCentroid(kClusters
 						.get(n));
 				kCentroids.add(nthCentroid);
 			}
+		
+			/*
+			 * boolean flag = true; for (int i = 0; i < kCentroids.size(); i++)
+			 * { if (prevKCentroids.size() == 0) { flag = false; break; } double
+			 * temp = ProjectUtils.getEuclideanDistance( kCentroids.get(i),
+			 * prevKCentroids.get(i)); if (temp > 0.001) { flag = false; break;
+			 * } } if (flag == true) { break; }
+			 */
 
-			if (kCentroids.equals(prevKCentroids)) {
-				break;
+			double sse = 0;
+			for (int n = 0; n < kClusters.size(); n++) {
+				List<List<Double>> tempList = new LinkedList<List<Double>>(
+						kClusters.get(n).values());
+				List<Double> tempCentriod = kCentroids.get(n);
+				for (List<Double> tp : tempList) {
+					sse = sse + ProjectUtils.getSquaredError(tp, tempCentriod);
+				}
+
 			}
-
+			if (sseCompare[0]==0.00){
+				sseCompare[0]= sse;
+			}else{
+				sseCompare[1]=sse;
+				if(sseCompare[0]-sseCompare[1]<0.02){
+					break;
+				}
+				else{
+					sseCompare[0]=sseCompare[1];
+				}
+			}
+			
 			for (int n = 0; n < kClusters.size(); n++) {
 				kClusters.get(n).clear();
 			}
-			for (int key : kMeansBasicIteration.keySet()) {
+			for (Integer key : kMeansBasicIteration.keySet()) {
 				int index = ProjectUtils
 						.getClusterWithMaximumProximityToCentroid(
 								kMeansBasicIteration.get(key), kCentroids);
 				kClusters.get(index).put(key, kMeansBasicIteration.get(key));
 			}
+			
 		}
 		for (int i = 0; i < kClusters.size(); i++)
 			System.out.println(kClusters.get(i).keySet().size() + "    "
 					+ kClusters.get(i).keySet());
+		System.out.println(kCentroids);
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	public int generateRandomNumberInRange(int range) {
 
 		Random random = new Random();
