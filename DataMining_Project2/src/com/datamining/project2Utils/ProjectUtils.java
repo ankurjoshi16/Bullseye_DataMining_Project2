@@ -113,19 +113,20 @@ public class ProjectUtils {
 		return centroid;
 	}
 
-	public static List<Double> getCentroidWithDataPoints(
-			Map<Integer, DataPoint> map) {
+	public static List<Double> getCentroidWithDataPoints(List<List<Double>> ip) {
 		List<Double> centroid = new ArrayList<Double>();
 
-		Map.Entry<Integer, DataPoint> nextentry = map.entrySet().iterator()
-				.next();
-		int size = (nextentry).getValue().getCoordinates().size();
-		for (int i = 0; i < size; i++) {
-			double[] coordinates = new double[map.size()];
+		if(null==ip||0==ip.size()){
+			return centroid;
+		}
+		int dimensions = ip.get(0).size();
+		for (int i = 0; i < dimensions; i++) {
+			double[] coordinates = new double[ip.size()];
 			int k = 0;
 			Double sum = 0.0;
-			for (Map.Entry<Integer, DataPoint> entry : map.entrySet()) {
-				coordinates[k++] = entry.getValue().getCoordinates().get(i);
+
+			for (List<Double> dp : ip) {
+				coordinates[k++] = dp.get(i);
 			}
 			for (int j = 0; j < coordinates.length; j++)
 				sum += coordinates[j];
