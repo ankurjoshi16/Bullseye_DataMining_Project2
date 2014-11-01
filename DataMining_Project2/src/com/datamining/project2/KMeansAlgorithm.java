@@ -10,6 +10,7 @@ import com.datamining.project2Utils.ProjectUtils;
 
 public class KMeansAlgorithm {
 
+	private String fileName;
 	private double sse;
 	private int iterations;
 	private List<ProjectCluster> clusters;
@@ -20,6 +21,7 @@ public class KMeansAlgorithm {
 			throws NumberFormatException, IOException {
 		this.sse = sse;
 		this.iterations = iterations;
+		this.fileName = fileName;
 		initialKMeans = ProjectUtils.readFileToInitialMap(fileName);
 		String[] rowNums = pipeDelimRowNums.split("\\|");
 		clusters = new ArrayList<ProjectCluster>();
@@ -31,7 +33,7 @@ public class KMeansAlgorithm {
 		// Initial C are created at this point.
 	}
 
-	public void runKMeansAlgorithm() {
+	public void runKMeansAlgorithm() throws NumberFormatException, IOException {
 		int loop = 0;
 		while (true) {
 			loop++;
@@ -60,13 +62,19 @@ public class KMeansAlgorithm {
 			clusters = clusters2;
 		}
 		OutputObject oo = new OutputObject();
-		oo.outputStr = oo.outputStr+ "Total Iterations Executed for KMeans : "+loop ;
-		oo.outputStr= oo.outputStr +"\n"+"Final SSE at the time of Convergence: " + ProjectUtils.getSSE(clusters);
+		oo.outputStr = oo.outputStr + "Total Iterations Executed for KMeans : "
+				+ loop;
+		oo.outputStr = oo.outputStr + "\n"
+				+ "Final SSE at the time of Convergence: "
+				+ ProjectUtils.getSSE(clusters);
+		oo.outputStr = oo.outputStr + "\n"
+				+ "External Index /Jaccard Coefficient: "
+				+ ProjectUtils.calculateExternalIndex(fileName, clusters);
 		for (int i = 0; i < clusters.size(); i++) {
-			oo.outputStr = oo.outputStr+"\n"+"Size of Cluster:"+ clusters.get(i).getAllClusterPoints().size()
+			oo.outputStr = oo.outputStr + "\n" + "Size of Cluster:"
+					+ clusters.get(i).getAllClusterPoints().size()
 					+ " , ClusterPoints :" + clusters.get(i).getAllKeys();
 		}
-		
 		System.out.println(oo.outputStr);
 	}
 

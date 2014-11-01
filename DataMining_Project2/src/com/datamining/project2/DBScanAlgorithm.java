@@ -14,20 +14,30 @@ import com.datamining.project2Utils.ProjectUtils;
 public class DBScanAlgorithm {
 
 	private String fileName;
-	private double epsilon = 1.06;
-	private int minPoints = 4;
+	private double epsilon = 0.257;
+	private int minPoints = 5;
 	private Map<Integer, DataPoint> initialDBScan;
-	private List<LinkedHashMap<Integer, DataPoint>> clusters;
+	private List<ProjectCluster> pClusters;
 	private List<Integer> outliers = new ArrayList<Integer>();
 	private List<Integer> clustered = new ArrayList<Integer>();
+	private OutputObject oo = new OutputObject();
 
 	private DBScanAlgorithm(String fileName) throws NumberFormatException,
 			IOException {
-		initialDBScan = ProjectUtils.readFileToInitialMap(fileName);
+		this.fileName = fileName;
+		initialDBScan = ProjectUtils.readFileToInitialMapNorm(fileName);
+	}
+
+	private DBScanAlgorithm(String fileName, double epsilon,int minPoints) throws NumberFormatException,
+			IOException {
+		this.fileName = fileName;
+		this.epsilon = epsilon;
+		this.minPoints= minPoints;
+		initialDBScan = ProjectUtils.readFileToInitialMapNorm(fileName);
 	}
 
 	public void runDBScanAlgorithm() throws NumberFormatException, IOException {
-		clusters = new ArrayList<LinkedHashMap<Integer, DataPoint>>();
+		pClusters = new ArrayList<ProjectCluster>();
 		for (int a : initialDBScan.keySet()) {
 			if (initialDBScan.get(a).isVisited == true) {
 				continue;
@@ -42,34 +52,57 @@ public class DBScanAlgorithm {
 					outliers.add(a);
 
 				} else {
-					LinkedHashMap<Integer, DataPoint> nextCluster = new LinkedHashMap<Integer, DataPoint>();
-					clusters.add(nextCluster);
-					expandCluster(a, neighborPts, nextCluster);
+					ProjectCluster pNextCluster = new ProjectCluster();
+					pClusters.add(pNextCluster);
+					expandCluster(a, neighborPts, pNextCluster);
 				}
 
 			}
 
 		}
-		for (int i = 0; i < clusters.size(); i++) {
-			System.out.println(clusters.get(i).size() + "   "
-					+ clusters.get(i).keySet());
-			clustered.addAll(clusters.get(i).keySet());
+		oo.outputStr = oo.outputStr
+				+ "Total number of clusters formed after running DBScan Algorithm: "
+				+ pClusters.size();
+		for (int i = 0; i < pClusters.size(); i++) {
+
+			oo.outputStr = oo.outputStr + "\n" + "Cluster Size: "
+					+ pClusters.get(i).getAllClusterPoints().size()
+					+ " , Cluster Points: " + pClusters.get(i).getAllKeys();
+
+			clustered.addAll(pClusters.get(i).getAllKeys());
 		}
-		System.out.println("Total points clustered: " + clustered.size());
+
+		oo.outputStr = oo.outputStr + "\n" + "Total points clustered: "
+				+ clustered.size();
 
 		for (int a : clustered) {
 			if (outliers.contains(a)) {
 				outliers.remove(new Integer(a));
-				initialDBScan.get(a).isNoise=false;
+				initialDBScan.get(a).isNoise = false;
 			}
 		}
+
+		ProjectCluster pc = new ProjectCluster();
+		pClusters.add(pc);
+		for (int o : outliers) {
+			pc.addPoint(initialDBScan.get(o));
+		}
+
+		oo.outputStr = oo.outputStr + "\n" + "Total Outliers Found: "
+				+ outliers.size();
+
+		oo.outputStr = oo.outputStr + "\n"
+				+ "External Index /Jaccard Coefficient: "
+				+ ProjectUtils.calculateExternalIndex(fileName, pClusters);
+
+		System.out.println(oo.outputStr);
 
 	}
 
 	private void expandCluster(int point, List<Integer> neighbors,
-			Map<Integer, DataPoint> nextCluster) {
+			ProjectCluster nextCluster) {
 
-		nextCluster.put(point, initialDBScan.get(point));
+		nextCluster.addPoint(initialDBScan.get(point));
 		initialDBScan.get(point).isPartOfCluster = true;
 		Queue<Integer> neighborsQ = new LinkedList<Integer>(neighbors);
 		while (!neighborsQ.isEmpty()) {
@@ -86,7 +119,7 @@ public class DBScanAlgorithm {
 				}
 			}
 			if (initialDBScan.get(head).isPartOfCluster == false) {
-				nextCluster.put(head, initialDBScan.get(head));
+				nextCluster.addPoint(initialDBScan.get(head));
 				initialDBScan.get(head).isPartOfCluster = true;
 			}
 		}
@@ -139,7 +172,8 @@ public class DBScanAlgorithm {
 		this.fileName = fileName;
 	}
 
-	public List<Integer> getOutliers() throws NumberFormatException, IOException {
+	public List<Integer> getOutliers() throws NumberFormatException,
+			IOException {
 		outliers = new ArrayList<Integer>();
 		runDBScanAlgorithm();
 		return outliers;
@@ -147,10 +181,11 @@ public class DBScanAlgorithm {
 
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
-		DBScanAlgorithm dbscan = new DBScanAlgorithm("cho.txt");
-		// dbscan.runDBScanAlgorithm();
+		DBScanAlgorithm dbscan = new DBScanAlgorithm("iyer.txt");
+		dbscan.runDBScanAlgorithm();
 		// dbscan.calculateEpsilon();
-		System.out.println("Total Outliers Found  : "+ dbscan.getOutliers().size());
+		// System.out.println("Total Outliers Found  : "+
+		// dbscan.getOutliers().size());
 
 	}
 

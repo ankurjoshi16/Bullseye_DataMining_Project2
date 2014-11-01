@@ -10,6 +10,7 @@ public class DataPoint implements Comparable<DataPoint> {
 	public boolean isNoise=false;
 	public boolean isPartOfCluster = false;
 	public boolean isVisited = false;
+	public int gT;
 
 
 	public int getIndex() {

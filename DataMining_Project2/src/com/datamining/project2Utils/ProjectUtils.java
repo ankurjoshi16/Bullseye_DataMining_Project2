@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
 
@@ -40,8 +41,8 @@ public class ProjectUtils {
 
 		// System.out.println(getEuclideanDistance(tp1, tp2));
 
-		//getNormalizedFile("cho.txt");
-		getInitialCentriodsForMR("cho.txt", 5);
+		getNormalizedFile("iyer.txt");
+		// getInitialCentriodsForMR("cho.txt", 5);
 
 	}
 
@@ -204,6 +205,7 @@ public class ProjectUtils {
 			dp = new DataPoint();
 			dp.setCoordinates(tempList);
 			dp.setIndex(tempKey);
+			dp.gT = Integer.parseInt(tempArray[1]);
 			initialMap.put(tempKey, dp);
 
 		}
@@ -304,7 +306,6 @@ public class ProjectUtils {
 	}
 
 	public static int generateRandomNumberInRange(int range) {
-
 		Random random = new Random();
 		int temp = random.nextInt(range);
 		if (allPossibleValues.size() == range) {
@@ -320,5 +321,73 @@ public class ProjectUtils {
 		}
 		allPossibleValues.add(temp);
 		return temp;
+	}
+
+	public static double calculateExternalIndex(String fileName,
+			List<ProjectCluster> cResult) throws NumberFormatException,
+			IOException {
+
+		Map<Integer, ProjectCluster> cMap = new TreeMap<Integer, ProjectCluster>();
+		Map<Integer, Integer> gMap = getGMap(fileName);
+		if (null == cResult || 0 == cResult.size()) {
+			return 0.0;
+		}
+		for (ProjectCluster pc : cResult) {
+			for (int a : pc.getAllKeys()) {
+				cMap.put(a, pc);
+			}
+		}
+
+		List<Integer> keys = new ArrayList<Integer>(cMap.keySet());
+		int[][] cMatrix = new int[gMap.size()][gMap.size()];
+		int[][] gMatrix = new int[gMap.size()][gMap.size()];
+
+		for (int i = 0; i < keys.size(); i++) {
+			for (int j = 0; j < keys.size(); j++) {
+				if (cMap.get(keys.get(i)) == cMap.get(keys.get(j))) {
+					cMatrix[i][j] = 1;
+				}
+			}
+		}
+
+		keys = new ArrayList<Integer>(gMap.keySet());
+		for (int i = 0; i < keys.size(); i++) {
+			for (int j = 0; j < keys.size(); j++) {
+				if (gMap.get(keys.get(i)) == gMap.get(keys.get(j))) {
+					gMatrix[i][j] = 1;
+				}
+			}
+		}
+		int ss = 0, sd = 0, ds = 0;
+		for (int i = 0; i < keys.size(); i++) {
+			for (int j = 0; j < keys.size(); j++) {
+				if ((1 == cMatrix[i][j]) && (1 == gMatrix[i][j])) {
+					ss++;
+				} else if ((1 == cMatrix[i][j]) && (0 == gMatrix[i][j])) {
+					sd++;
+				} else if ((0 == cMatrix[i][j]) && (1 == gMatrix[i][j])) {
+					ds++;
+				}
+			}
+		}
+
+		double jc = (double)(ss) / (ss + sd + ds);
+		return jc;
+	}
+
+	public static Map<Integer, Integer> getGMap(String fileName)
+			throws NumberFormatException, IOException {
+		Map<Integer, Integer> gMap = new TreeMap<Integer, Integer>();
+		FileReader fileReader = new FileReader(fileName);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		String readLine;
+		while ((readLine = bufferedReader.readLine()) != null) {
+			String[] tempArray = readLine.split("\t");
+			int tempKey = Integer.parseInt(tempArray[0]);
+			int cId = Integer.parseInt(tempArray[1]);
+			gMap.put(tempKey, cId);
+		}
+		bufferedReader.close();
+		return gMap;
 	}
 }

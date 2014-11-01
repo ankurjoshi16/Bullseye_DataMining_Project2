@@ -192,63 +192,13 @@ public class KMeansClustering {
 		// TODO Auto-generated method stub
 		KMeansClustering kMeansClustering = new KMeansClustering(5, "cho.txt");
 		//kMeansClustering.runKMeansClusteringAlgorithm();
-		// kMeansClustering.runKMeansWithPurDataPointsInRandomeClusterInit();
+		kMeansClustering.runKMeansWithPurDataPointsInRandomeClusterInit();
 		kMeansClustering.runKMeansWithDataPointsChoppedInNSlots();
 		// kMeansClustering.runKMeansWithScaledInitialClusters();
 
 	}
 
-	public void runKMeansWithScaledInitialClusters() {
-
-		List<Map<Integer, List<Double>>> kClusters = new ArrayList<Map<Integer, List<Double>>>();
-
-		for (int i = 0; i < k; i++) {
-			Map<Integer, List<Double>> singleCluster = new LinkedHashMap<Integer, List<Double>>();
-			kClusters.add(singleCluster);
-		}
-		List<List<Double>> kCentroids = ProjectUtils.getInitialCentroids(
-				kMeansBasicIteration, k);
-		System.out.println(kCentroids);
-		List<List<Double>> prevKCentroids = new ArrayList<List<Double>>();
-
-		int iteration = 0;
-
-		while (true) {
-			if (iteration != 0) {
-				prevKCentroids.clear();
-				prevKCentroids.addAll(kCentroids);
-				kCentroids.clear();
-				for (int n = 0; n < kClusters.size(); n++) {
-					List<Double> nthCentroid = ProjectUtils
-							.getCentroid(kClusters.get(n));
-					kCentroids.add(nthCentroid);
-				}
-
-				if (kCentroids.equals(prevKCentroids)) {
-					break;
-				}
-
-				for (int n = 0; n < kClusters.size(); n++) {
-					kClusters.get(n).clear();
-				}
-			}
-			iteration++;
-			for (int key : kMeansBasicIteration.keySet()) {
-				int index = ProjectUtils
-						.getClusterWithMaximumProximityToCentroid(
-								kMeansBasicIteration.get(key), kCentroids);
-				kClusters.get(index).put(key, kMeansBasicIteration.get(key));
-			}
-
-			for (int i = 0; i < kClusters.size(); i++)
-				System.out.println(kClusters.get(i).keySet().size() + "    "
-						+ kClusters.get(i).keySet());
-		}
-		for (int i = 0; i < kClusters.size(); i++)
-			System.out.println(kClusters.get(i).keySet().size() + "    "
-					+ kClusters.get(i).keySet());
-	}
-
+	
 	public void runKMeansWithDataPointsChoppedInNSlots() {
 		int iter=0;
 		List<Map<Integer, List<Double>>> kClusters = new ArrayList<Map<Integer, List<Double>>>();

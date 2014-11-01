@@ -15,6 +15,8 @@ public class HirAggSingleLinkAlgorithm {
 	private List<ProjectCluster> clusters;
 	private String mergeOrder = "";
 	private String cutLevelCLusters = "";
+	private double jc;
+	private OutputObject oo = new OutputObject();
 
 	public HirAggSingleLinkAlgorithm(String fileName, int cutLevel) {
 
@@ -23,8 +25,7 @@ public class HirAggSingleLinkAlgorithm {
 		this.cutLevel = cutLevel;
 	}
 
-	private void getInitialClusters()
-			throws NumberFormatException, IOException {
+	private void getInitialClusters() throws NumberFormatException, IOException {
 
 		Map<Integer, DataPoint> initialMap = ProjectUtils
 				.readFileToInitialMapNorm(fileName);
@@ -37,7 +38,8 @@ public class HirAggSingleLinkAlgorithm {
 		}
 	}
 
-	private void mergeClusters(ProjectCluster c1, ProjectCluster c2) {
+	private void mergeClusters(ProjectCluster c1, ProjectCluster c2)
+			throws NumberFormatException, IOException {
 		mergeOrder = mergeOrder + "\n" + c1.identifier + " ----> "
 				+ c2.identifier;
 		List<DataPoint> points = new ArrayList<DataPoint>(
@@ -57,6 +59,7 @@ public class HirAggSingleLinkAlgorithm {
 						+ pc2.getAllClusterPoints().size()
 						+ " , Cluster Points are :" + pc2.getAllKeys();
 			}
+			jc = ProjectUtils.calculateExternalIndex(fileName, clusters);
 		}
 	}
 
@@ -76,13 +79,23 @@ public class HirAggSingleLinkAlgorithm {
 			clusterHeap.clear();
 		}
 
-		System.out.println(mergeOrder);
-		System.out.println(cutLevelCLusters);
+		oo.outputStr = "Below are the clusters formed at cut level : "
+				+ cutLevel;
+		oo.outputStr = oo.outputStr + "\n" + cutLevelCLusters;
+		oo.outputStr = oo.outputStr + "\n"
+				+ "External Index /Jaccard Coefficient at this level: " + jc;
+		oo.outputStr = oo.outputStr
+				+ "\n\n"
+				+ "At the end of last iteration Single cluster is formed , Order of clusters merge as below :";
+		oo.outputStr = oo.outputStr + "\n" + mergeOrder;
+		System.out.println(oo.outputStr);
+
 	}
 
-	public static void main(String[] args) throws NumberFormatException, IOException {
+	public static void main(String[] args) throws NumberFormatException,
+			IOException {
 		HirAggSingleLinkAlgorithm hca = new HirAggSingleLinkAlgorithm(
-				"cho.txt", 5);
+				"cho.txt", 0);
 		hca.runHeirarchical();
 	}
 }
