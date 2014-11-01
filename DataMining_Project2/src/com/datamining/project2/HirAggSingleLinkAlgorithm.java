@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 import com.datamining.project2Utils.ProjectUtils;
 
@@ -13,6 +14,7 @@ public class HirAggSingleLinkAlgorithm {
 	private int cutLevel;
 	private List<ProjectCluster> clusters;
 	private String mergeOrder = "";
+	private String cutLevelCLusters = "";
 
 	public HirAggSingleLinkAlgorithm(String fileName, int cutLevel) {
 
@@ -21,8 +23,7 @@ public class HirAggSingleLinkAlgorithm {
 		this.cutLevel = cutLevel;
 	}
 
-	@SuppressWarnings("unused")
-	private List<ProjectCluster> getInitialClusters()
+	private void getInitialClusters()
 			throws NumberFormatException, IOException {
 
 		Map<Integer, DataPoint> initialMap = ProjectUtils
@@ -34,10 +35,8 @@ public class HirAggSingleLinkAlgorithm {
 			pc.addPoint(initialMap.get(key));
 			clusters.add(pc);
 		}
-		return clusters;
 	}
 
-	@SuppressWarnings("unused")
 	private void mergeClusters(ProjectCluster c1, ProjectCluster c2) {
 		mergeOrder = mergeOrder + "\n" + c1.identifier + " ----> "
 				+ c2.identifier;
@@ -51,5 +50,39 @@ public class HirAggSingleLinkAlgorithm {
 		clusters.remove(c1);
 		clusters.remove(c2);
 		clusters.add(pc);
+
+		if (clusters.size() == cutLevel) {
+			for (ProjectCluster pc2 : clusters) {
+				cutLevelCLusters = cutLevelCLusters + "\n" + "Cluster Size: "
+						+ pc2.getAllClusterPoints().size()
+						+ " , Cluster Points are :" + pc2.getAllKeys();
+			}
+		}
+	}
+
+	public void runHeirarchical() throws NumberFormatException, IOException {
+
+		PriorityQueue<ProjectCluster> clusterHeap = new PriorityQueue<ProjectCluster>();
+		getInitialClusters();
+		while (clusters.size() > 1) {
+			for (ProjectCluster pTemp : clusters) {
+				pTemp.getMinDiff(clusters);
+				clusterHeap.add(pTemp);
+			}
+
+			ProjectCluster cl1 = clusterHeap.poll();
+			ProjectCluster cl2 = cl1.nearestC;
+			mergeClusters(cl1, cl2);
+			clusterHeap.clear();
+		}
+
+		System.out.println(mergeOrder);
+		System.out.println(cutLevelCLusters);
+	}
+
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		HirAggSingleLinkAlgorithm hca = new HirAggSingleLinkAlgorithm(
+				"cho.txt", 5);
+		hca.runHeirarchical();
 	}
 }

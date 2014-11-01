@@ -20,7 +20,7 @@ public class KMeansAlgorithm {
 			throws NumberFormatException, IOException {
 		this.sse = sse;
 		this.iterations = iterations;
-		initialKMeans = ProjectUtils.readFileToInitialMapNorm(fileName);
+		initialKMeans = ProjectUtils.readFileToInitialMap(fileName);
 		String[] rowNums = pipeDelimRowNums.split("\\|");
 		clusters = new ArrayList<ProjectCluster>();
 		for (int i = 0; i < numOfClusters; i++) {
@@ -73,8 +73,8 @@ public class KMeansAlgorithm {
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
 		// TODO Auto-generated method stub
-		KMeansAlgorithm kmc = new KMeansAlgorithm("iyer.txt", 10,
-				"77|92|201|31|78|399|154|231|308|385", 14.372, 100);
+		KMeansAlgorithm kmc = new KMeansAlgorithm("cho.txt", 5,
+				"77|92|201|31|78", 61.00, 10);
 		kmc.runKMeansAlgorithm();
 	}
 

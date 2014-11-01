@@ -1,8 +1,11 @@
 package com.datamining.project2Utils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +23,7 @@ import com.datamining.project2.ProjectCluster;
 
 public class ProjectUtils {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NumberFormatException, IOException {
 
 		List<Double> tp1 = new ArrayList<Double>();
 		tp1.add(8.0);
@@ -30,7 +33,9 @@ public class ProjectUtils {
 		tp2.add(4.0);
 		tp2.add(2.0);
 
-		System.out.println(getEuclideanDistance(tp1, tp2));
+		//System.out.println(getEuclideanDistance(tp1, tp2));
+		
+		getNormalizedFile("cho.txt");
 
 	}
 
@@ -116,7 +121,7 @@ public class ProjectUtils {
 	public static List<Double> getCentroidWithDataPoints(List<List<Double>> ip) {
 		List<Double> centroid = new ArrayList<Double>();
 
-		if(null==ip||0==ip.size()){
+		if (null == ip || 0 == ip.size()) {
 			return centroid;
 		}
 		int dimensions = ip.get(0).size();
@@ -298,11 +303,36 @@ public class ProjectUtils {
 				sse = sse
 						+ getSquaredError(dp.getCoordinates(),
 								kmc.getCentriod());
-				//System.out.println(sse);
 			}
 		}
 
 		return sse;
 	}
-
+	
+	public static File getNormalizedFile(String fileName) throws NumberFormatException, IOException{
+		Map<Integer,DataPoint> normalizedMap = readFileToInitialMapNorm(fileName);
+			
+		File file = new File("MrInput");
+		if (!file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileWriter fw = new FileWriter(file);
+		BufferedWriter bw = new BufferedWriter(fw);
+		StringBuilder str = new StringBuilder();
+		for(int key:normalizedMap.keySet()){
+			String temp="";
+			temp = "\n"+temp + key;
+			for(double d:normalizedMap.get(key).getCoordinates()){
+				temp = temp + "\t" + Double.toString(d);
+			}
+			str.append(temp);
+		}
+		
+		bw.write(str.toString().substring(1));
+		bw.close();
+		System.out.println("Done");
+		return file;
+		
+	}
 }
