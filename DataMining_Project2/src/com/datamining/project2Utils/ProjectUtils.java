@@ -11,10 +11,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
 
@@ -22,8 +25,10 @@ import com.datamining.project2.DataPoint;
 import com.datamining.project2.ProjectCluster;
 
 public class ProjectUtils {
+	private static Set<Integer> allPossibleValues = new HashSet<Integer>();
 
-	public static void main(String[] args) throws NumberFormatException, IOException {
+	public static void main(String[] args) throws NumberFormatException,
+			IOException {
 
 		List<Double> tp1 = new ArrayList<Double>();
 		tp1.add(8.0);
@@ -33,9 +38,10 @@ public class ProjectUtils {
 		tp2.add(4.0);
 		tp2.add(2.0);
 
-		//System.out.println(getEuclideanDistance(tp1, tp2));
-		
-		getNormalizedFile("cho.txt");
+		// System.out.println(getEuclideanDistance(tp1, tp2));
+
+		//getNormalizedFile("cho.txt");
+		getInitialCentriodsForMR("cho.txt", 5);
 
 	}
 
@@ -154,66 +160,6 @@ public class ProjectUtils {
 	 * centroid.add(sum / inputList.size()); } return centroid; }
 	 */
 
-	public static List<List<Double>> getInitialCentroids(
-			Map<Integer, List<Double>> map, int num) {
-
-		if (map == null)
-			return null;
-
-		int attr = -1;
-
-		for (Map.Entry<Integer, List<Double>> e : map.entrySet()) {
-			attr = e.getValue().size();
-			break;
-		}
-
-		List<Double[]> setTemp = new ArrayList<Double[]>();
-
-		for (int i = 0; i < attr; i++) {
-			double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
-			double scalingFactor = 0;
-
-			for (List<Double> indexRel : map.values()) {
-
-				double val = indexRel.get(i);
-
-				if (val < min)
-					min = val;
-				if (val > max)
-					max = val;
-			}
-
-			scalingFactor = (max - min) / num;
-			Double[] dTemp = { min, scalingFactor };
-			setTemp.add(dTemp);
-
-		}
-
-		List<List<Double>> returnList = new ArrayList<List<Double>>();
-
-		for (int i = 0; i < num; i++) {
-			List<Double> temp = new ArrayList<>();
-			returnList.add(temp);
-		}
-
-		for (int i = 0; i < attr; i++) {
-			Double[] dTempArray = setTemp.get(i);
-			double min = dTempArray[0];
-			double scale = dTempArray[1];
-			int counter = 0;
-
-			for (List<Double> tempList : returnList) {
-				double value = min + scale * counter;
-				tempList.add(value);
-				counter++;
-
-			}
-
-		}
-
-		return returnList;
-	}
-
 	// returns Epsilon value of all points sorted by distnace
 	public static double getEpsilion(List<Double> distanceList) {
 		if (distanceList == null)
@@ -308,10 +254,11 @@ public class ProjectUtils {
 
 		return sse;
 	}
-	
-	public static File getNormalizedFile(String fileName) throws NumberFormatException, IOException{
-		Map<Integer,DataPoint> normalizedMap = readFileToInitialMapNorm(fileName);
-			
+
+	public static File getNormalizedFile(String fileName)
+			throws NumberFormatException, IOException {
+
+		Map<Integer, DataPoint> normalizedMap = readFileToInitialMapNorm(fileName);
 		File file = new File("MrInput");
 		if (!file.exists()) {
 			file.delete();
@@ -320,19 +267,58 @@ public class ProjectUtils {
 		FileWriter fw = new FileWriter(file);
 		BufferedWriter bw = new BufferedWriter(fw);
 		StringBuilder str = new StringBuilder();
-		for(int key:normalizedMap.keySet()){
-			String temp="";
-			temp = "\n"+temp + key;
-			for(double d:normalizedMap.get(key).getCoordinates()){
+		for (int key : normalizedMap.keySet()) {
+			String temp = "";
+			temp = "\n" + temp + key;
+			for (double d : normalizedMap.get(key).getCoordinates()) {
 				temp = temp + "\t" + Double.toString(d);
 			}
 			str.append(temp);
 		}
-		
 		bw.write(str.toString().substring(1));
 		bw.close();
-		System.out.println("Done");
 		return file;
-		
+	}
+
+	public static List<List<Double>> getInitialCentriodsForMR(String fileName,
+			int k) throws NumberFormatException, IOException {
+		Map<Integer, DataPoint> normalizedMap = readFileToInitialMapNorm(fileName);
+		List<List<Double>> initialCentriods = new ArrayList<List<Double>>();
+		List<Map<Integer, List<Double>>> kClusters = new ArrayList<Map<Integer, List<Double>>>();
+		for (int i = 0; i < k; i++) {
+			Map<Integer, List<Double>> singleCluster = new LinkedHashMap<Integer, List<Double>>();
+			kClusters.add(singleCluster);
+		}
+
+		for (int key : normalizedMap.keySet()) {
+			kClusters.get(generateRandomNumberInRange(k)).put(key,
+					normalizedMap.get(key).getCoordinates());
+		}
+
+		for (int i = 0; i < kClusters.size(); i++) {
+			initialCentriods
+					.add(getCentroidWithDataPoints(new ArrayList<List<Double>>(
+							kClusters.get(i).values())));
+		}
+		return initialCentriods;
+	}
+
+	public static int generateRandomNumberInRange(int range) {
+
+		Random random = new Random();
+		int temp = random.nextInt(range);
+		if (allPossibleValues.size() == range) {
+			allPossibleValues.clear();
+		}
+		while (true) {
+			if (allPossibleValues.contains(temp)) {
+				temp = random.nextInt(range);
+			} else {
+				allPossibleValues.add(temp);
+				break;
+			}
+		}
+		allPossibleValues.add(temp);
+		return temp;
 	}
 }
