@@ -15,7 +15,7 @@ public class DBScanAlgorithm {
 
 	private String fileName;
 	private double epsilon = 0.257;
-	private int minPoints = 5;
+	private int minPoints = 1;
 	private Map<Integer, DataPoint> initialDBScan;
 	private List<ProjectCluster> pClusters;
 	private List<Integer> outliers = new ArrayList<Integer>();
@@ -96,7 +96,7 @@ public class DBScanAlgorithm {
 				+ ProjectUtils.calculateExternalIndex(fileName, pClusters);
 
 		System.out.println(oo.outputStr);
-
+		ProjectUtils.calculateCorrelation(fileName, pClusters, initialDBScan);
 	}
 
 	private void expandCluster(int point, List<Integer> neighbors,
@@ -181,7 +181,7 @@ public class DBScanAlgorithm {
 
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
-		DBScanAlgorithm dbscan = new DBScanAlgorithm("iyer.txt");
+		DBScanAlgorithm dbscan = new DBScanAlgorithm("cho.txt");
 		dbscan.runDBScanAlgorithm();
 		// dbscan.calculateEpsilon();
 		// System.out.println("Total Outliers Found  : "+

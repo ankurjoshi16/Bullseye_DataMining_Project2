@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import com.datamining.project2.DataPoint;
 import com.datamining.project2.ProjectCluster;
@@ -371,7 +372,7 @@ public class ProjectUtils {
 			}
 		}
 
-		double jc = (double)(ss) / (ss + sd + ds);
+		double jc = (double) (ss) / (ss + sd + ds);
 		return jc;
 	}
 
@@ -389,5 +390,117 @@ public class ProjectUtils {
 		}
 		bufferedReader.close();
 		return gMap;
+	}
+
+	public static double calculateCorrelation(String fileName,
+			List<ProjectCluster> cResult, Map<Integer, DataPoint> ipMap)
+			throws NumberFormatException, IOException {
+
+		Map<Integer, ProjectCluster> cMap = new TreeMap<Integer, ProjectCluster>();
+
+		if (null == cResult || 0 == cResult.size()) {
+			return 0.0;
+		}
+		for (ProjectCluster pc : cResult) {
+			for (int a : pc.getAllKeys()) {
+				cMap.put(a, pc);
+			}
+		}
+
+		List<Integer> keys = new ArrayList<Integer>(cMap.keySet());
+
+		List<Double> inVector = new ArrayList<Double>();
+		List<Double> diVector = new ArrayList<Double>();
+
+		for (int i = 0; i < keys.size(); i++) {
+			for (int j = 0; j < keys.size(); j++) {
+				if (cMap.get(keys.get(i)) == cMap.get(keys.get(j))) {
+					inVector.add(1.0);
+				} else {
+					inVector.add(0.0);
+				}
+			}
+		}
+
+		keys = new ArrayList<Integer>(ipMap.keySet());
+
+		for (int i = 0; i < keys.size(); i++) {
+			for (int j = 0; j < keys.size(); j++) {
+
+				double td = ProjectUtils.getEuclideanDistance(
+						ipMap.get(keys.get(i)).getCoordinates(),
+						ipMap.get(keys.get(j)).getCoordinates());
+				diVector.add(td);
+			}
+		}
+
+		double diMean = getMean(diVector);
+		double inMean = getMean(inVector);
+
+		double N = 0, D1 = 0, D2 = 0;
+		for (int i = 0; i < inVector.size(); i++) {
+			N = N + ((inVector.get(i) - inMean) * (diVector.get(i) - diMean));
+			D1 = D1 + ((inVector.get(i) - inMean) * (inVector.get(i) - inMean));
+			D2 = D2 + ((diVector.get(i) - diMean) * (diVector.get(i) - diMean));
+		}
+
+		double[] inD = new double[inVector.size()];
+		for (int i = 0; i < inVector.size(); i++) {
+			inD[i] = inVector.get(i);
+		}
+
+		double[] diD = new double[diVector.size()];
+		for (int i = 0; i < diVector.size(); i++) {
+			diD[i] = diVector.get(i);
+		}
+
+		double cor = N / Math.sqrt(D1 * D2);
+		PearsonsCorrelation pc = new PearsonsCorrelation();
+		System.out.println(diVector.size() + "  " + inVector.size());
+		System.out.println("Me  " + cor);
+		System.out.println("PC" + pc.correlation(inD, diD));
+
+		return 0;
+	}
+
+	public List<ProjectCluster> createClustersFromCentriods(String fileName,
+			List<List<Double>> centriods) throws NumberFormatException,
+			IOException {
+
+		if (null == fileName || null == centriods) {
+			return null;
+		}
+
+		Map<Integer, DataPoint> normalizedMap = readFileToInitialMapNorm(fileName);
+		List<ProjectCluster> clusters = new ArrayList<ProjectCluster>();
+
+		for (int i = 0; i < centriods.size(); i++) {
+			ProjectCluster kmc = new ProjectCluster(centriods.get(i));
+			clusters.add(kmc);
+		}
+
+		List<Double> kD;
+		for (DataPoint dp : normalizedMap.values()) {
+			kD = new ArrayList<Double>();
+			for (int i = 0; i < clusters.size(); i++) {
+				kD.add(ProjectUtils.getEuclideanDistance(dp.getCoordinates(),
+						clusters.get(i).getCentriod()));
+			}
+			double min = Collections.min(kD);
+			int index = kD.indexOf(new Double(min));
+			clusters.get(index).addPoint(dp);
+		}
+
+		return clusters;
+	}
+
+	public static double getMean(List<Double> ipList) {
+
+		double temp = 0;
+		for (int i = 0; i < ipList.size(); i++) {
+			temp = temp + ipList.get(i);
+		}
+
+		return temp / ipList.size();
 	}
 }

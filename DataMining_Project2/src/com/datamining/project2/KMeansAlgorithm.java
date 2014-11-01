@@ -76,6 +76,8 @@ public class KMeansAlgorithm {
 					+ " , ClusterPoints :" + clusters.get(i).getAllKeys();
 		}
 		System.out.println(oo.outputStr);
+		System.out.println(ProjectUtils.calculateCorrelation(fileName,
+				clusters, initialKMeans));
 	}
 
 	public static void main(String[] args) throws NumberFormatException,
