@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.datamining.project2Utils.ProjectUtils;
 
-public class ProjectCluster {
+public class ProjectCluster implements Comparable<ProjectCluster>{
 
 	private List<Double> centriod;
 	private List<DataPoint> clusterPoints = new ArrayList<DataPoint>();
@@ -95,6 +95,16 @@ public class ProjectCluster {
 		double totalMin = Collections.min(matrix.keySet());
 		this.minDiff = totalMin;
 		this.nearestC = matrix.get(totalMin);
+	}
+
+	@Override
+	public int compareTo(ProjectCluster o) {
+		// TODO Auto-generated method stub
+		if(this.minDiff==o.minDiff)
+			return 0;
+		else if(this.minDiff<o.minDiff)
+			return -1;
+		else return 1;
 	}
 
 }
