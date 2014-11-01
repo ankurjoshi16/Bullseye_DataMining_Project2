@@ -494,6 +494,19 @@ public class ProjectUtils {
 		return clusters;
 	}
 
+	public List<List<Double>> getCentriodsForDemo(int k , String fileName,String pipeDelimRowNums) throws NumberFormatException, IOException{
+		
+		List<List<Double>> centriods = new ArrayList<List<Double>>();
+		Map<Integer, DataPoint> normalizedMap = readFileToInitialMapNorm(fileName);
+		String[] rowNums = pipeDelimRowNums.split("\\|");
+		for (int i = 0; i < k; i++) {
+			centriods.add(normalizedMap.get(
+					Integer.parseInt(rowNums[i])).getCoordinates());
+		}
+		
+		return centriods;
+		
+	}
 	public static double getMean(List<Double> ipList) {
 
 		double temp = 0;
