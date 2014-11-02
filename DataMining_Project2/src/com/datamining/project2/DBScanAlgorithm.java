@@ -3,13 +3,15 @@ package com.datamining.project2;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import PCA_BullsEye.PCA;
+
 import com.datamining.project2Utils.ProjectUtils;
+import com.mathworks.toolbox.javabuilder.MWException;
 
 public class DBScanAlgorithm {
 
@@ -22,13 +24,13 @@ public class DBScanAlgorithm {
 	private List<Integer> clustered = new ArrayList<Integer>();
 	private OutputObject oo = new OutputObject();
 
-	private DBScanAlgorithm(String fileName) throws NumberFormatException,
+	public DBScanAlgorithm(String fileName) throws NumberFormatException,
 			IOException {
 		this.fileName = fileName;
 		initialDBScan = ProjectUtils.readFileToInitialMapNorm(fileName);
 	}
 
-	private DBScanAlgorithm(String fileName, double epsilon,int minPoints) throws NumberFormatException,
+	public DBScanAlgorithm(String fileName, double epsilon,int minPoints) throws NumberFormatException,
 			IOException {
 		this.fileName = fileName;
 		this.epsilon = epsilon;
@@ -36,7 +38,7 @@ public class DBScanAlgorithm {
 		initialDBScan = ProjectUtils.readFileToInitialMapNorm(fileName);
 	}
 
-	public void runDBScanAlgorithm() throws NumberFormatException, IOException {
+	public OutputObject runDBScanAlgorithm() throws NumberFormatException, IOException {
 		pClusters = new ArrayList<ProjectCluster>();
 		for (int a : initialDBScan.keySet()) {
 			if (initialDBScan.get(a).isVisited == true) {
@@ -94,9 +96,22 @@ public class DBScanAlgorithm {
 		oo.outputStr = oo.outputStr + "\n"
 				+ "External Index /Jaccard Coefficient: "
 				+ ProjectUtils.calculateExternalIndex(fileName, pClusters);
+		
+		oo.outputStr = oo.outputStr
+				+ "\n"
+				+ "Correaltion with Distance Matrix: "
+				+ ProjectUtils.calculateCorrelation(fileName, pClusters,
+						initialDBScan);
+		
+		return oo;
+	}
+	
+	
+	public void plotPca() throws IOException, MWException {
 
-		System.out.println(oo.outputStr);
-		ProjectUtils.calculateCorrelation(fileName, pClusters, initialDBScan);
+		ProjectUtils.writeFileForPCA(pClusters);
+		PCA pca = new PCA();
+		pca.PCA("pca.txt", fileName);
 	}
 
 	private void expandCluster(int point, List<Integer> neighbors,
@@ -164,6 +179,7 @@ public class DBScanAlgorithm {
 		return ProjectUtils.getEpsilion(nthNearestDistance);
 	}
 
+	
 	public String getFileName() {
 		return fileName;
 	}

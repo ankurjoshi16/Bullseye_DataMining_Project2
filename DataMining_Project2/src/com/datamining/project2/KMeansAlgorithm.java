@@ -6,20 +6,25 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import PCA_BullsEye.PCA;
+
 import com.datamining.project2Utils.ProjectUtils;
+import com.mathworks.toolbox.javabuilder.MWException;
 
 public class KMeansAlgorithm {
 
 	private String fileName;
 	private double sse;
+	private double sseThr;
 	private int iterations;
 	private List<ProjectCluster> clusters;
 	private Map<Integer, DataPoint> initialKMeans;
 
 	public KMeansAlgorithm(String fileName, int numOfClusters,
-			String pipeDelimRowNums, double sse, int iterations)
+			String pipeDelimRowNums, double sseThr, int iterations)
 			throws NumberFormatException, IOException {
-		this.sse = sse;
+
+		this.sseThr = sseThr;
 		this.iterations = iterations;
 		this.fileName = fileName;
 		initialKMeans = ProjectUtils.readFileToInitialMapNorm(fileName);
@@ -30,10 +35,11 @@ public class KMeansAlgorithm {
 					Integer.parseInt(rowNums[i])).getCoordinates());
 			clusters.add(kmc);
 		}
-		
+
 	}
 
-	public void runKMeansAlgorithm() throws NumberFormatException, IOException {
+	public OutputObject runKMeansAlgorithm() throws NumberFormatException,
+			IOException, MWException {
 		int loop = 0;
 		while (true) {
 			loop++;
@@ -48,18 +54,11 @@ public class KMeansAlgorithm {
 				int index = kD.indexOf(new Double(min));
 				clusters.get(index).addPoint(dp);
 			}
-			//For check
-			System.out.println("For Iteration " + (loop-1) );
-			for(ProjectCluster pc:clusters){
-				System.out.println(pc.getFinalCentriod());
-			}
-			
-			
-			if (loop >= iterations + 1
-					|| ((ProjectUtils.getSSE(clusters) <= sse) && clusters
-							.size() > 0)) {
+			double newSSE = ProjectUtils.getSSE(clusters);
+			if (loop >= iterations + 1 || (Math.abs(newSSE - sse) <= sseThr)) {
 				break;
 			}
+			sse = newSSE;
 			List<ProjectCluster> clusters2 = new ArrayList<ProjectCluster>();
 			for (int i = 0; i < clusters.size(); i++) {
 				ProjectCluster kmc = new ProjectCluster(clusters.get(i)
@@ -70,28 +69,41 @@ public class KMeansAlgorithm {
 		}
 		OutputObject oo = new OutputObject();
 		oo.outputStr = oo.outputStr + "Total Iterations Executed for KMeans : "
-				+ loop;
+				+ (loop-1);
 		oo.outputStr = oo.outputStr + "\n"
 				+ "Final SSE at the time of Convergence: "
 				+ ProjectUtils.getSSE(clusters);
 		oo.outputStr = oo.outputStr + "\n"
 				+ "External Index /Jaccard Coefficient: "
 				+ ProjectUtils.calculateExternalIndex(fileName, clusters);
+		oo.outputStr = oo.outputStr
+				+ "\n"
+				+ "Correaltion with Distance Matrix: "
+				+ ProjectUtils.calculateCorrelation(fileName, clusters,
+						initialKMeans);
+
 		for (int i = 0; i < clusters.size(); i++) {
 			oo.outputStr = oo.outputStr + "\n" + "Size of Cluster:"
 					+ clusters.get(i).getAllClusterPoints().size()
 					+ " , ClusterPoints :" + clusters.get(i).getAllKeys();
 		}
-		System.out.println(oo.outputStr);
-		System.out.println(ProjectUtils.calculateCorrelation(fileName,
-				clusters, initialKMeans));
+
+		return oo;
+
+	}
+
+	public void plotPca() throws IOException, MWException {
+
+		ProjectUtils.writeFileForPCA(clusters);
+		PCA pca = new PCA();
+		pca.PCA("pca.txt", fileName);
 	}
 
 	public static void main(String[] args) throws NumberFormatException,
-			IOException {
+			IOException, MWException {
 		// TODO Auto-generated method stub
-		KMeansAlgorithm kmc = new KMeansAlgorithm("iyer.txt", 10,
-				"1|12|44|66|77|92|201|240|268|386",Double.MIN_VALUE, 25);
+		KMeansAlgorithm kmc = new KMeansAlgorithm("cho.txt", 5,
+				"1|76|148|250|382", 0.001, 50);
 		kmc.runKMeansAlgorithm();
 	}
 

@@ -6,16 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+import PCA_BullsEye.PCA;
+
 import com.datamining.project2Utils.ProjectUtils;
+import com.mathworks.toolbox.javabuilder.MWException;
 
 public class HirAggSingleLinkAlgorithm {
 
 	private String fileName;
 	private int cutLevel;
 	private List<ProjectCluster> clusters;
+	private List<ProjectCluster> cutClusters;
 	private String mergeOrder = "";
 	private String cutLevelCLusters = "";
 	private double jc;
+	Map<Integer, DataPoint> initialMap;
 	private OutputObject oo = new OutputObject();
 
 	public HirAggSingleLinkAlgorithm(String fileName, int cutLevel) {
@@ -27,7 +32,7 @@ public class HirAggSingleLinkAlgorithm {
 
 	private void getInitialClusters() throws NumberFormatException, IOException {
 
-		Map<Integer, DataPoint> initialMap = ProjectUtils
+		initialMap = ProjectUtils
 				.readFileToInitialMapNorm(fileName);
 
 		for (Integer key : initialMap.keySet()) {
@@ -60,10 +65,11 @@ public class HirAggSingleLinkAlgorithm {
 						+ " , Cluster Points are :" + pc2.getAllKeys();
 			}
 			jc = ProjectUtils.calculateExternalIndex(fileName, clusters);
+			cutClusters = new ArrayList<ProjectCluster>(clusters);
 		}
 	}
 
-	public void runHeirarchical() throws NumberFormatException, IOException {
+	public OutputObject runHeirarchical() throws NumberFormatException, IOException {
 
 		PriorityQueue<ProjectCluster> clusterHeap = new PriorityQueue<ProjectCluster>();
 		getInitialClusters();
@@ -84,12 +90,26 @@ public class HirAggSingleLinkAlgorithm {
 		oo.outputStr = oo.outputStr + "\n" + cutLevelCLusters;
 		oo.outputStr = oo.outputStr + "\n"
 				+ "External Index /Jaccard Coefficient at this level: " + jc;
+	
+		oo.outputStr = oo.outputStr
+				+ "\n"
+				+ "Correaltion with Distance Matrix at this level: "
+				+ ProjectUtils.calculateCorrelation(fileName, cutClusters,
+						initialMap);
+		
 		oo.outputStr = oo.outputStr
 				+ "\n\n"
 				+ "At the end of last iteration Single cluster is formed , Order of clusters merge as below :";
 		oo.outputStr = oo.outputStr + "\n" + mergeOrder;
-		System.out.println(oo.outputStr);
+		return oo;
+		
+	}
+	
+	public void plotPca() throws IOException, MWException {
 
+		ProjectUtils.writeFileForPCA(cutClusters);
+		PCA pca = new PCA();
+		pca.PCA("pca.txt", fileName);
 	}
 
 	public static void main(String[] args) throws NumberFormatException,

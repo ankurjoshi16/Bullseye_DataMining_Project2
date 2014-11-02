@@ -56,15 +56,6 @@ public class ProjectUtils {
 		}
 		return Math.sqrt(sum);
 
-		/*
-		 * EuclideanDistance ed = new EuclideanDistance(); double[] leftArray =
-		 * new double[firstList.size()]; for (int i = 0; i < firstList.size();
-		 * i++) { leftArray[i] = firstList.get(i); }
-		 * 
-		 * double[] rightArray = new double[secondList.size()]; for (int i = 0;
-		 * i < secondList.size(); i++) { rightArray[i] = secondList.get(i); }
-		 * return ed.compute(leftArray, rightArray);
-		 */
 	}
 
 	public static double getSquaredError(List<Double> firstList,
@@ -447,9 +438,38 @@ public class ProjectUtils {
 		
 
 		double cor = N / Math.sqrt(D1 * D2);
-		System.out.println(diVector.size() + "  " + inVector.size());
 
 		return cor;
+	}
+	
+	public static void writeFileForPCA(List<ProjectCluster> clusters) throws IOException{
+		
+		File file = new File("pca.txt");
+		if (!file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileWriter fw = new FileWriter(file);
+		BufferedWriter bw = new BufferedWriter(fw);
+		StringBuilder str = new StringBuilder();
+		
+		
+		for(int i=0;i<clusters.size();i++){
+			for(DataPoint dp:clusters.get(i).getAllClusterPoints()){
+			String temp = "";
+			temp = "\n" + temp + dp.getIndex() +"\t" +(i+1);
+			for (double d : dp.getCoordinates()) {
+				temp = temp + "\t" + Double.toString(d);
+			}
+			str.append(temp);
+			}
+
+		}
+		
+		
+		bw.write(str.toString().substring(1));
+		bw.close();
+		
 	}
 
 	public List<ProjectCluster> createClustersFromCentriods(String fileName,

@@ -1,4 +1,6 @@
-package com.datamining.project2;
+package com.datamining.project2.UI;
+
+import com.datamining.project2.UI.KMeansUI;
 
 import java.awt.EventQueue;
 
@@ -35,6 +37,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.SwingConstants;
 
 public class HelloUi {
@@ -71,7 +74,7 @@ public class HelloUi {
 	private void initialize() {
 
 		frmBullseyeDw = new JFrame();
-		frmBullseyeDw.setTitle("BullsEye Dataware House");
+		frmBullseyeDw.setTitle("BullsEye Algorithms");
 		frmBullseyeDw.setBounds(100, 100, 658, 436);
 		frmBullseyeDw.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -83,15 +86,15 @@ public class HelloUi {
 		menuBar.setBounds(0, 0, 56, 21);
 		panel.add(menuBar);
 
-		JMenu mnQueries = new JMenu("Queries");
+		JMenu mnQueries = new JMenu("Index");
 
 		menuBar.add(mnQueries);
-
 		JMenuItem mnQuery1 = new JMenuItem("KMeans");
+
 		mnQuery1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				KMeans qu1 = new KMeans();
+				KMeansUI qu1 = new KMeansUI();
 				qu1.setVisible(true);
 
 			}
@@ -99,7 +102,30 @@ public class HelloUi {
 
 		mnQueries.add(mnQuery1);
 
-		JLabel lblNewLabel = new JLabel("DATA WAREHOUSE");
+		JMenuItem mnQuery2 = new JMenuItem("DBScan");
+		mnQuery2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DBScanUI qu2 = new DBScanUI();
+				qu2.setVisible(true);
+
+			}
+		});
+
+		mnQueries.add(mnQuery2);
+		
+		
+		JMenuItem mnQuery3 = new JMenuItem("HASLA");
+		mnQuery3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				HierarUI qu3 = new HierarUI();
+				qu3.setVisible(true);
+
+			}
+		});
+
+		mnQueries.add(mnQuery3);
+
+		JLabel lblNewLabel = new JLabel("Data Minning Project 2" );
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblNewLabel.setBounds(129, 112, 375, 42);
