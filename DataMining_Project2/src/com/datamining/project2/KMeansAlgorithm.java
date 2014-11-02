@@ -22,7 +22,7 @@ public class KMeansAlgorithm {
 		this.sse = sse;
 		this.iterations = iterations;
 		this.fileName = fileName;
-		initialKMeans = ProjectUtils.readFileToInitialMap(fileName);
+		initialKMeans = ProjectUtils.readFileToInitialMapNorm(fileName);
 		String[] rowNums = pipeDelimRowNums.split("\\|");
 		clusters = new ArrayList<ProjectCluster>();
 		for (int i = 0; i < numOfClusters; i++) {
@@ -30,7 +30,7 @@ public class KMeansAlgorithm {
 					Integer.parseInt(rowNums[i])).getCoordinates());
 			clusters.add(kmc);
 		}
-		// Initial C are created at this point.
+		
 	}
 
 	public void runKMeansAlgorithm() throws NumberFormatException, IOException {
@@ -48,6 +48,13 @@ public class KMeansAlgorithm {
 				int index = kD.indexOf(new Double(min));
 				clusters.get(index).addPoint(dp);
 			}
+			//For check
+			System.out.println("For Iteration " + (loop-1) );
+			for(ProjectCluster pc:clusters){
+				System.out.println(pc.getFinalCentriod());
+			}
+			
+			
 			if (loop >= iterations + 1
 					|| ((ProjectUtils.getSSE(clusters) <= sse) && clusters
 							.size() > 0)) {
@@ -83,8 +90,8 @@ public class KMeansAlgorithm {
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
 		// TODO Auto-generated method stub
-		KMeansAlgorithm kmc = new KMeansAlgorithm("cho.txt", 5,
-				"77|92|201|31|78", 61.00, 10);
+		KMeansAlgorithm kmc = new KMeansAlgorithm("iyer.txt", 10,
+				"1|12|44|66|77|92|201|240|268|386",Double.MIN_VALUE, 25);
 		kmc.runKMeansAlgorithm();
 	}
 
