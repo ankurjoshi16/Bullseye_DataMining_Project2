@@ -444,23 +444,12 @@ public class ProjectUtils {
 			D2 = D2 + ((diVector.get(i) - diMean) * (diVector.get(i) - diMean));
 		}
 
-		double[] inD = new double[inVector.size()];
-		for (int i = 0; i < inVector.size(); i++) {
-			inD[i] = inVector.get(i);
-		}
-
-		double[] diD = new double[diVector.size()];
-		for (int i = 0; i < diVector.size(); i++) {
-			diD[i] = diVector.get(i);
-		}
+		
 
 		double cor = N / Math.sqrt(D1 * D2);
-		PearsonsCorrelation pc = new PearsonsCorrelation();
 		System.out.println(diVector.size() + "  " + inVector.size());
-		System.out.println("Me  " + cor);
-		System.out.println("PC" + pc.correlation(inD, diD));
 
-		return 0;
+		return cor;
 	}
 
 	public List<ProjectCluster> createClustersFromCentriods(String fileName,
