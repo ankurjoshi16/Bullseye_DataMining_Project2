@@ -308,8 +308,7 @@ public class ProjectUtils {
 			}
 		}
 
-		System.out.println("Jaccard  :" + gMap.size() + "   " + cMap.size());
-		System.out.println();
+		
 
 		List<Integer> keys = new ArrayList<Integer>(cMap.keySet());
 		int[][] cMatrix = new int[gMap.size()][gMap.size()];
@@ -370,7 +369,6 @@ public class ProjectUtils {
 
 		Map<Integer, ProjectCluster> cMap = new TreeMap<Integer, ProjectCluster>();
 		List<Integer> outliers = new ArrayList<Integer>();
-		System.out.println("ipMap " + ipMap.size());
 		if (null == cResult || 0 == cResult.size()) {
 			return 0.0;
 		}
@@ -382,7 +380,6 @@ public class ProjectUtils {
 				cMap.put(a, pc);
 			}
 		}
-		System.out.println("cMap Size " + cMap.size());
 
 		List<Integer> keys = new ArrayList<Integer>(cMap.keySet());
 
@@ -416,8 +413,7 @@ public class ProjectUtils {
 		double diMean = getMean(diVector);
 		double inMean = getMean(inVector);
 
-		System.out.println("inVector" + inVector.size());
-		System.out.println("diVector" + diVector.size());
+	
 
 		double N = 0, D1 = 0, D2 = 0;
 		for (int i = 0; i < inVector.size(); i++) {
