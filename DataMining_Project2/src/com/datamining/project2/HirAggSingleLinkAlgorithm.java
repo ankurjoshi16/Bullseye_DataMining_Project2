@@ -23,8 +23,15 @@ public class HirAggSingleLinkAlgorithm {
 	Map<Integer, DataPoint> initialMap;
 	private OutputObject oo = new OutputObject();
 
-	public HirAggSingleLinkAlgorithm(String fileName, int cutLevel) {
+	public HirAggSingleLinkAlgorithm(String fileName, int cutLevel,boolean norm) throws NumberFormatException, IOException {
 
+		if(true==norm){
+		initialMap = ProjectUtils
+				.readFileToInitialMapNorm(fileName);}
+		else{
+			initialMap = ProjectUtils
+					.readFileToInitialMap(fileName);
+		}
 		clusters = new ArrayList<ProjectCluster>();
 		this.fileName = fileName;
 		this.cutLevel = cutLevel;
@@ -32,8 +39,7 @@ public class HirAggSingleLinkAlgorithm {
 
 	private void getInitialClusters() throws NumberFormatException, IOException {
 
-		initialMap = ProjectUtils
-				.readFileToInitialMapNorm(fileName);
+		
 
 		for (Integer key : initialMap.keySet()) {
 			ProjectCluster pc = new ProjectCluster();
@@ -115,7 +121,7 @@ public class HirAggSingleLinkAlgorithm {
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
 		HirAggSingleLinkAlgorithm hca = new HirAggSingleLinkAlgorithm(
-				"cho.txt", 0);
+				"cho.txt", 0,true);
 		hca.runHeirarchical();
 	}
 }

@@ -30,12 +30,16 @@ public class DBScanAlgorithm {
 		initialDBScan = ProjectUtils.readFileToInitialMapNorm(fileName);
 	}
 
-	public DBScanAlgorithm(String fileName, double epsilon, int minPoints)
-			throws NumberFormatException, IOException {
+	public DBScanAlgorithm(String fileName, double epsilon, int minPoints,
+			boolean norm) throws NumberFormatException, IOException {
 		this.fileName = fileName;
 		this.epsilon = epsilon;
 		this.minPoints = minPoints;
-		initialDBScan = ProjectUtils.readFileToInitialMap(fileName);
+		if (true == norm) {
+			initialDBScan = ProjectUtils.readFileToInitialMapNorm(fileName);
+		} else {
+			initialDBScan = ProjectUtils.readFileToInitialMap(fileName);
+		}
 	}
 
 	public OutputObject runDBScanAlgorithm() throws NumberFormatException,

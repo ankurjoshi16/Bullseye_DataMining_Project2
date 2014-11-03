@@ -392,20 +392,20 @@ public class ProjectUtils {
 			throws NumberFormatException, IOException {
 
 		Map<Integer, ProjectCluster> cMap = new TreeMap<Integer, ProjectCluster>();
-		System.out.println(ipMap.size());
+		List<Integer> outliers = new ArrayList<Integer>();
+		System.out.println("ipMap "+ipMap.size());
 		if (null == cResult || 0 == cResult.size()) {
 			return 0.0;
 		}
 		for (ProjectCluster pc : cResult) {
 			if(pc.index==-1){
-				System.out.println("Won");
-				continue;
+				outliers.addAll(pc.getAllKeys());
 			}
 			for (int a : pc.getAllKeys()) {
 				cMap.put(a, pc);
 			}
 		}
-		System.out.println(cMap.size());
+		System.out.println("cMap Size "+cMap.size());
 
 		List<Integer> keys = new ArrayList<Integer>(cMap.keySet());
 
@@ -414,7 +414,10 @@ public class ProjectUtils {
 
 		for (int i = 0; i < keys.size(); i++) {
 			for (int j = 0; j < keys.size(); j++) {
-				if (cMap.get(keys.get(i)) == cMap.get(keys.get(j))) {
+				if(outliers.contains(keys.get(i))){
+					inVector.add(0.0);
+				}
+				else if (cMap.get(keys.get(i)) == cMap.get(keys.get(j))) {
 					inVector.add(1.0);
 				} else {
 					inVector.add(0.0);
@@ -437,8 +440,8 @@ public class ProjectUtils {
 		double diMean = getMean(diVector);
 		double inMean = getMean(inVector);
 
-		System.out.println(inVector.size());
-		System.out.println(diVector.size());
+		System.out.println("inVector"+inVector.size());
+		System.out.println("diVector"+diVector.size());
 
 		double N = 0, D1 = 0, D2 = 0;
 		for (int i = 0; i < inVector.size(); i++) {

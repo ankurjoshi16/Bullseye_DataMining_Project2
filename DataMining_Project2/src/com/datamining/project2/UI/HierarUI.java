@@ -23,11 +23,14 @@ import com.datamining.project2.KMeansAlgorithm;
 import com.datamining.project2.OutputObject;
 import com.mathworks.toolbox.javabuilder.MWException;
 
+import javax.swing.JCheckBox;
+
 public class HierarUI extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField cutLevel;
 	private JTextField fileName;
+	private JTextField textField;
 
 	/**
 	 * Launch the application.
@@ -45,57 +48,79 @@ public class HierarUI extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
-		
+
 		final JPanel panel = new JPanel();
 		contentPane.add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
-		
-		JLabel lblNewLabel = new JLabel("Run Hierarchical Algorithm for below props :");
+
+		JLabel lblNewLabel = new JLabel(
+				"Run Hierarchical Algorithm for below props :");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel.setBounds(52, 18, 446, 30);
 		panel.add(lblNewLabel);
-		
+
 		JLabel lblType = new JLabel("Cut Level");
 		lblType.setHorizontalAlignment(SwingConstants.LEFT);
 		lblType.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblType.setBounds(52, 57, 89, 20);
 		panel.add(lblType);
-		
+
 		cutLevel = new JTextField();
 		cutLevel.setText("5");
 		cutLevel.setBounds(141, 59, 80, 20);
 		panel.add(cutLevel);
 		cutLevel.setColumns(10);
-		
+
 		JLabel fileNameLabel = new JLabel("File:");
 		fileNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		fileNameLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		fileNameLabel.setBounds(273, 59, 32, 23);
 		panel.add(fileNameLabel);
-		
+
 		fileName = new JTextField();
 		fileName.setText("cho.txt");
 		fileName.setColumns(10);
 		fileName.setBounds(315, 60, 187, 18);
 		panel.add(fileName);
-		
+
 		JScrollPane scrollPane_1 = new JScrollPane();
 		scrollPane_1.setBounds(40, 124, 568, 229);
 		panel.add(scrollPane_1);
-		
+
 		JTextArea textArea = new JTextArea();
 		scrollPane_1.setViewportView(textArea);
-		
+
+		JCheckBox checkBox = new JCheckBox("Normalize File");
+		checkBox.setSelected(true);
+		checkBox.setBounds(52, 84, 137, 23);
+		panel.add(checkBox);
+
+		JLabel label = new JLabel("Execution Time :");
+		label.setHorizontalAlignment(SwingConstants.LEFT);
+		label.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		label.setBounds(188, 356, 109, 20);
+		panel.add(label);
+
+		textField = new JTextField();
+		textField.setColumns(10);
+		textField.setBounds(297, 358, 130, 20);
+		panel.add(textField);
+
 		JButton btnExecute = new JButton("Execute");
 		btnExecute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+
 				int cutL = Integer.parseInt(cutLevel.getText());
-				
 
 				try {
-					HirAggSingleLinkAlgorithm hcl = new HirAggSingleLinkAlgorithm(fileName.getText(), cutL);
+					long current = System.nanoTime();
+					HirAggSingleLinkAlgorithm hcl = new HirAggSingleLinkAlgorithm(
+							fileName.getText(), cutL, checkBox.isSelected());
 					OutputObject oo = hcl.runHeirarchical();
+					textField.setText(Double.toString(
+							(System.nanoTime() - current) / 1000000000.0)
+							.substring(0, 4)
+							+ " Sec");
 					textArea.setText(oo.outputStr);
 					hcl.plotPca();
 				} catch (NumberFormatException | IOException e) {
@@ -105,34 +130,17 @@ public class HierarUI extends JFrame {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 			}
-				
-				
-				
-			
+
 		});
-		
+
 		btnExecute.setBounds(273, 90, 89, 23);
 		panel.add(btnExecute);
-		
-		
-		
-		
-	
-		
-		
-		
-		
-		
-		
-		
-		
+
 	}
 
 	public static void fillCombo(JComboBox temp, String variable) {
-
-		
 
 	}
 }

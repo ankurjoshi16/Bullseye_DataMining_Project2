@@ -21,13 +21,18 @@ public class KMeansAlgorithm {
 	private Map<Integer, DataPoint> initialKMeans;
 
 	public KMeansAlgorithm(String fileName, int numOfClusters,
-			String pipeDelimRowNums, double sseThr, int iterations)
+			String pipeDelimRowNums, double sseThr, int iterations, boolean norm)
 			throws NumberFormatException, IOException {
 
 		this.sseThr = sseThr;
 		this.iterations = iterations;
 		this.fileName = fileName;
-		initialKMeans = ProjectUtils.readFileToInitialMapNorm(fileName);
+		if (true == norm) {
+			initialKMeans = ProjectUtils.readFileToInitialMapNorm(fileName);
+		} else {
+			initialKMeans = ProjectUtils.readFileToInitialMap(fileName);
+		}
+
 		String[] rowNums = pipeDelimRowNums.split("\\|");
 		clusters = new ArrayList<ProjectCluster>();
 		for (int i = 0; i < numOfClusters; i++) {
@@ -69,7 +74,7 @@ public class KMeansAlgorithm {
 		}
 		OutputObject oo = new OutputObject();
 		oo.outputStr = oo.outputStr + "Total Iterations Executed for KMeans : "
-				+ (loop-1);
+				+ (loop - 1);
 		oo.outputStr = oo.outputStr + "\n"
 				+ "Final SSE at the time of Convergence: "
 				+ ProjectUtils.getSSE(clusters);
@@ -103,7 +108,7 @@ public class KMeansAlgorithm {
 			IOException, MWException {
 		// TODO Auto-generated method stub
 		KMeansAlgorithm kmc = new KMeansAlgorithm("cho.txt", 5,
-				"1|76|148|250|382", 0.001, 50);
+				"1|76|148|250|382", 0.001, 50,true);
 		kmc.runKMeansAlgorithm();
 	}
 

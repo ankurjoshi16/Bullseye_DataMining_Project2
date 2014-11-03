@@ -34,6 +34,7 @@ import com.mathworks.toolbox.javabuilder.MWException;
 
 import javax.swing.JTextArea;
 import javax.swing.JScrollBar;
+import javax.swing.JCheckBox;
 
 public class KMeansUI extends JFrame {
 
@@ -146,6 +147,13 @@ public class KMeansUI extends JFrame {
 		panel.add(exeTime);
 		exeTime.setColumns(10);
 		
+		
+		JCheckBox checkBox = new JCheckBox("Normalize File");
+		checkBox.setSelected(true);
+		checkBox.setBounds(52, 84, 137, 23);
+		panel.add(checkBox);
+		
+		
 		JButton btnExecute = new JButton("Execute");
 		btnExecute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -156,7 +164,7 @@ public class KMeansUI extends JFrame {
 
 				try {
 					long current=System.nanoTime();
-					KMeansAlgorithm kmc = new KMeansAlgorithm(fileName.getText(), k, rowNumbers.getText(), sseThreshold, N);
+					KMeansAlgorithm kmc = new KMeansAlgorithm(fileName.getText(), k, rowNumbers.getText(), sseThreshold, N,checkBox.isSelected());
 					OutputObject oo = kmc.runKMeansAlgorithm();
 					exeTime.setText(Double.toString((System.nanoTime()-current)/1000000000.0).substring(0,4)+" Sec");
 					textArea.setText(oo.outputStr);
@@ -178,6 +186,8 @@ public class KMeansUI extends JFrame {
 		
 		btnExecute.setBounds(273, 90, 89, 23);
 		panel.add(btnExecute);
+		
+		
 		
 		
 		
