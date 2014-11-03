@@ -20,11 +20,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.math3.ml.distance.EuclideanDistance;
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import PCA_BullsEye.PCA;
 
 import com.datamining.project2.DataPoint;
 import com.datamining.project2.ProjectCluster;
+import com.mathworks.toolbox.javabuilder.MWException;
 
 public class ProjectUtils {
 	private static Set<Integer> allPossibleValues = new HashSet<Integer>();
@@ -83,17 +83,6 @@ public class ProjectUtils {
 		}
 		return index;
 
-		/*
-		 * List<Double> allEntries = new LinkedList<Double>();
-		 * 
-		 * for (List<Double> ltp : kCentroids) {
-		 * allEntries.add(getEuclideanDistance(ltp, dataPoint)); } double min =
-		 * Collections.min(allEntries);
-		 * 
-		 * for (int i = 0; i < allEntries.size(); i++) { if (allEntries.get(i)
-		 * == min) { return i; } }
-		 * System.out.println("Yesssssssssssssssssssssss"); return -1;
-		 */
 	}
 
 	public static List<Double> getCentroid(Map<Integer, List<Double>> map) {
@@ -139,19 +128,6 @@ public class ProjectUtils {
 		}
 		return centroid;
 	}
-
-	/*
-	 * public static List<Double> getCentroid(Collection<List<Double>> input) {
-	 * 
-	 * List<List<Double>> inputList = new LinkedList<List<Double>>(input);
-	 * List<Double> centroid = new ArrayList<Double>();
-	 * 
-	 * int listSize = inputList.get(0).size();
-	 * 
-	 * for (int i = 0; i < listSize; i++) { double sum = 0; for (int j = 0; j <
-	 * inputList.size(); j++) { sum = sum + inputList.get(j).get(i); }
-	 * centroid.add(sum / inputList.size()); } return centroid; }
-	 */
 
 	// returns Epsilon value of all points sorted by distnace
 	public static double getEpsilion(List<Double> distanceList) {
@@ -320,8 +296,9 @@ public class ProjectUtils {
 			IOException {
 
 		Map<Integer, ProjectCluster> cMap = new TreeMap<Integer, ProjectCluster>();
-		Map<Integer, Integer> gMap = new TreeMap<Integer,Integer>(getGMap(fileName));
-		
+		Map<Integer, Integer> gMap = new TreeMap<Integer, Integer>(
+				getGMap(fileName));
+
 		if (null == cResult || 0 == cResult.size()) {
 			return 0.0;
 		}
@@ -331,7 +308,7 @@ public class ProjectUtils {
 			}
 		}
 
-		System.out.println("Jaccard  :"+gMap.size() + "   " +cMap.size());
+		System.out.println("Jaccard  :" + gMap.size() + "   " + cMap.size());
 		System.out.println();
 
 		List<Integer> keys = new ArrayList<Integer>(cMap.keySet());
@@ -393,19 +370,19 @@ public class ProjectUtils {
 
 		Map<Integer, ProjectCluster> cMap = new TreeMap<Integer, ProjectCluster>();
 		List<Integer> outliers = new ArrayList<Integer>();
-		System.out.println("ipMap "+ipMap.size());
+		System.out.println("ipMap " + ipMap.size());
 		if (null == cResult || 0 == cResult.size()) {
 			return 0.0;
 		}
 		for (ProjectCluster pc : cResult) {
-			if(pc.index==-1){
+			if (pc.index == -1) {
 				outliers.addAll(pc.getAllKeys());
 			}
 			for (int a : pc.getAllKeys()) {
 				cMap.put(a, pc);
 			}
 		}
-		System.out.println("cMap Size "+cMap.size());
+		System.out.println("cMap Size " + cMap.size());
 
 		List<Integer> keys = new ArrayList<Integer>(cMap.keySet());
 
@@ -414,10 +391,9 @@ public class ProjectUtils {
 
 		for (int i = 0; i < keys.size(); i++) {
 			for (int j = 0; j < keys.size(); j++) {
-				if(outliers.contains(keys.get(i))){
+				if (outliers.contains(keys.get(i))) {
 					inVector.add(0.0);
-				}
-				else if (cMap.get(keys.get(i)) == cMap.get(keys.get(j))) {
+				} else if (cMap.get(keys.get(i)) == cMap.get(keys.get(j))) {
 					inVector.add(1.0);
 				} else {
 					inVector.add(0.0);
@@ -440,8 +416,8 @@ public class ProjectUtils {
 		double diMean = getMean(diVector);
 		double inMean = getMean(inVector);
 
-		System.out.println("inVector"+inVector.size());
-		System.out.println("diVector"+diVector.size());
+		System.out.println("inVector" + inVector.size());
+		System.out.println("diVector" + diVector.size());
 
 		double N = 0, D1 = 0, D2 = 0;
 		for (int i = 0; i < inVector.size(); i++) {
@@ -539,4 +515,43 @@ public class ProjectUtils {
 
 		return temp / ipList.size();
 	}
+
+	public static void mapReduceStats(List<ProjectCluster> clusters,
+			String fileName) throws IOException, MWException {
+
+		System.out.println("External Index /Jaccard Coefficient: "
+				+ calculateExternalIndex(fileName, clusters));
+
+		System.out.println("Correaltion with Distance Matrix: "
+				+ calculateCorrelation(fileName, clusters,
+						readFileToInitialMapNorm(fileName)));
+
+		File file = new File("pcamr.txt");
+		if (!file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+		FileWriter fw = new FileWriter(file);
+		BufferedWriter bw = new BufferedWriter(fw);
+		StringBuilder str = new StringBuilder();
+
+		for (int i = 0; i < clusters.size(); i++) {
+			for (DataPoint dp : clusters.get(i).getAllClusterPoints()) {
+				String temp = "";
+				temp = "\n" + temp + dp.getIndex() + "\t" + (i + 1);
+				for (double d : dp.getCoordinates()) {
+					temp = temp + "\t" + Double.toString(d);
+				}
+				str.append(temp);
+			}
+
+		}
+
+		bw.write(str.toString().substring(1));
+		bw.close();
+		PCA pca = new PCA();
+		pca.PCA("pcamr.txt", fileName);
+
+	}
+
 }
