@@ -320,7 +320,8 @@ public class ProjectUtils {
 			IOException {
 
 		Map<Integer, ProjectCluster> cMap = new TreeMap<Integer, ProjectCluster>();
-		Map<Integer, Integer> gMap = getGMap(fileName);
+		Map<Integer, Integer> gMap = new TreeMap<Integer,Integer>(getGMap(fileName));
+		
 		if (null == cResult || 0 == cResult.size()) {
 			return 0.0;
 		}
@@ -329,6 +330,9 @@ public class ProjectUtils {
 				cMap.put(a, pc);
 			}
 		}
+
+		System.out.println("Jaccard  :"+gMap.size() + "   " +cMap.size());
+		System.out.println();
 
 		List<Integer> keys = new ArrayList<Integer>(cMap.keySet());
 		int[][] cMatrix = new int[gMap.size()][gMap.size()];
@@ -388,15 +392,20 @@ public class ProjectUtils {
 			throws NumberFormatException, IOException {
 
 		Map<Integer, ProjectCluster> cMap = new TreeMap<Integer, ProjectCluster>();
-
+		System.out.println(ipMap.size());
 		if (null == cResult || 0 == cResult.size()) {
 			return 0.0;
 		}
 		for (ProjectCluster pc : cResult) {
+			if(pc.index==-1){
+				System.out.println("Won");
+				continue;
+			}
 			for (int a : pc.getAllKeys()) {
 				cMap.put(a, pc);
 			}
 		}
+		System.out.println(cMap.size());
 
 		List<Integer> keys = new ArrayList<Integer>(cMap.keySet());
 
@@ -413,7 +422,7 @@ public class ProjectUtils {
 			}
 		}
 
-		keys = new ArrayList<Integer>(ipMap.keySet());
+		keys = new ArrayList<Integer>(cMap.keySet());
 
 		for (int i = 0; i < keys.size(); i++) {
 			for (int j = 0; j < keys.size(); j++) {
@@ -428,6 +437,9 @@ public class ProjectUtils {
 		double diMean = getMean(diVector);
 		double inMean = getMean(inVector);
 
+		System.out.println(inVector.size());
+		System.out.println(diVector.size());
+
 		double N = 0, D1 = 0, D2 = 0;
 		for (int i = 0; i < inVector.size(); i++) {
 			N = N + ((inVector.get(i) - inMean) * (diVector.get(i) - diMean));
@@ -435,15 +447,14 @@ public class ProjectUtils {
 			D2 = D2 + ((diVector.get(i) - diMean) * (diVector.get(i) - diMean));
 		}
 
-		
-
 		double cor = N / Math.sqrt(D1 * D2);
 
 		return cor;
 	}
-	
-	public static void writeFileForPCA(List<ProjectCluster> clusters) throws IOException{
-		
+
+	public static void writeFileForPCA(List<ProjectCluster> clusters)
+			throws IOException {
+
 		File file = new File("pca.txt");
 		if (!file.exists()) {
 			file.delete();
@@ -452,24 +463,22 @@ public class ProjectUtils {
 		FileWriter fw = new FileWriter(file);
 		BufferedWriter bw = new BufferedWriter(fw);
 		StringBuilder str = new StringBuilder();
-		
-		
-		for(int i=0;i<clusters.size();i++){
-			for(DataPoint dp:clusters.get(i).getAllClusterPoints()){
-			String temp = "";
-			temp = "\n" + temp + dp.getIndex() +"\t" +(i+1);
-			for (double d : dp.getCoordinates()) {
-				temp = temp + "\t" + Double.toString(d);
-			}
-			str.append(temp);
+
+		for (int i = 0; i < clusters.size(); i++) {
+			for (DataPoint dp : clusters.get(i).getAllClusterPoints()) {
+				String temp = "";
+				temp = "\n" + temp + dp.getIndex() + "\t" + (i + 1);
+				for (double d : dp.getCoordinates()) {
+					temp = temp + "\t" + Double.toString(d);
+				}
+				str.append(temp);
 			}
 
 		}
-		
-		
+
 		bw.write(str.toString().substring(1));
 		bw.close();
-		
+
 	}
 
 	public List<ProjectCluster> createClustersFromCentriods(String fileName,
@@ -503,19 +512,21 @@ public class ProjectUtils {
 		return clusters;
 	}
 
-	public List<List<Double>> getCentriodsForDemo(int k , String fileName,String pipeDelimRowNums) throws NumberFormatException, IOException{
-		
+	public List<List<Double>> getCentriodsForDemo(int k, String fileName,
+			String pipeDelimRowNums) throws NumberFormatException, IOException {
+
 		List<List<Double>> centriods = new ArrayList<List<Double>>();
 		Map<Integer, DataPoint> normalizedMap = readFileToInitialMapNorm(fileName);
 		String[] rowNums = pipeDelimRowNums.split("\\|");
 		for (int i = 0; i < k; i++) {
-			centriods.add(normalizedMap.get(
-					Integer.parseInt(rowNums[i])).getCoordinates());
+			centriods.add(normalizedMap.get(Integer.parseInt(rowNums[i]))
+					.getCoordinates());
 		}
-		
+
 		return centriods;
-		
+
 	}
+
 	public static double getMean(List<Double> ipList) {
 
 		double temp = 0;

@@ -30,15 +30,16 @@ public class DBScanAlgorithm {
 		initialDBScan = ProjectUtils.readFileToInitialMapNorm(fileName);
 	}
 
-	public DBScanAlgorithm(String fileName, double epsilon,int minPoints) throws NumberFormatException,
-			IOException {
+	public DBScanAlgorithm(String fileName, double epsilon, int minPoints)
+			throws NumberFormatException, IOException {
 		this.fileName = fileName;
 		this.epsilon = epsilon;
-		this.minPoints= minPoints;
-		initialDBScan = ProjectUtils.readFileToInitialMapNorm(fileName);
+		this.minPoints = minPoints;
+		initialDBScan = ProjectUtils.readFileToInitialMap(fileName);
 	}
 
-	public OutputObject runDBScanAlgorithm() throws NumberFormatException, IOException {
+	public OutputObject runDBScanAlgorithm() throws NumberFormatException,
+			IOException {
 		pClusters = new ArrayList<ProjectCluster>();
 		for (int a : initialDBScan.keySet()) {
 			if (initialDBScan.get(a).isVisited == true) {
@@ -87,6 +88,7 @@ public class DBScanAlgorithm {
 		ProjectCluster pc = new ProjectCluster();
 		pClusters.add(pc);
 		for (int o : outliers) {
+			pc.index = -1;
 			pc.addPoint(initialDBScan.get(o));
 		}
 
@@ -96,17 +98,16 @@ public class DBScanAlgorithm {
 		oo.outputStr = oo.outputStr + "\n"
 				+ "External Index /Jaccard Coefficient: "
 				+ ProjectUtils.calculateExternalIndex(fileName, pClusters);
-		
+
 		oo.outputStr = oo.outputStr
 				+ "\n"
 				+ "Correaltion with Distance Matrix: "
 				+ ProjectUtils.calculateCorrelation(fileName, pClusters,
 						initialDBScan);
-		
+
 		return oo;
 	}
-	
-	
+
 	public void plotPca() throws IOException, MWException {
 
 		ProjectUtils.writeFileForPCA(pClusters);
@@ -179,7 +180,6 @@ public class DBScanAlgorithm {
 		return ProjectUtils.getEpsilion(nthNearestDistance);
 	}
 
-	
 	public String getFileName() {
 		return fileName;
 	}

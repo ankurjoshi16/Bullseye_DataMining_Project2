@@ -31,6 +31,7 @@ import com.datamining.project2.KMeansAlgorithm;
 import com.datamining.project2.Main;
 import com.datamining.project2.OutputObject;
 import com.mathworks.toolbox.javabuilder.MWException;
+
 import javax.swing.JTextArea;
 import javax.swing.JScrollBar;
 
@@ -42,6 +43,7 @@ public class KMeansUI extends JFrame {
 	private JTextField numOfIter;
 	private JTextField numOfClusters;
 	private JTextField fileName;
+	private JTextField exeTime;
 
 	/**
 	 * Launch the application.
@@ -133,6 +135,17 @@ public class KMeansUI extends JFrame {
 		JTextArea textArea = new JTextArea();
 		scrollPane_1.setViewportView(textArea);
 		
+		JLabel lblExecutionTime = new JLabel("Execution Time :");
+		lblExecutionTime.setHorizontalAlignment(SwingConstants.LEFT);
+		lblExecutionTime.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblExecutionTime.setBounds(196, 356, 109, 20);
+		panel.add(lblExecutionTime);
+		
+		exeTime = new JTextField();
+		exeTime.setBounds(315, 358, 130, 20);
+		panel.add(exeTime);
+		exeTime.setColumns(10);
+		
 		JButton btnExecute = new JButton("Execute");
 		btnExecute.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -142,8 +155,10 @@ public class KMeansUI extends JFrame {
 				
 
 				try {
+					long current=System.nanoTime();
 					KMeansAlgorithm kmc = new KMeansAlgorithm(fileName.getText(), k, rowNumbers.getText(), sseThreshold, N);
 					OutputObject oo = kmc.runKMeansAlgorithm();
+					exeTime.setText(Double.toString((System.nanoTime()-current)/1000000000.0).substring(0,4)+" Sec");
 					textArea.setText(oo.outputStr);
 					kmc.plotPca();
 				} catch (NumberFormatException | IOException e) {
@@ -163,6 +178,8 @@ public class KMeansUI extends JFrame {
 		
 		btnExecute.setBounds(273, 90, 89, 23);
 		panel.add(btnExecute);
+		
+		
 		
 		
 		

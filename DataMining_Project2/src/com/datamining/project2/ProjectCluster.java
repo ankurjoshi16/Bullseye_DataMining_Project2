@@ -15,6 +15,7 @@ public class ProjectCluster implements Comparable<ProjectCluster>{
 	public double minDiff;
 	public String identifier;
 	public ProjectCluster nearestC;
+	public int index;
 
 	public ProjectCluster() {
 		clusterPoints = new ArrayList<DataPoint>();
