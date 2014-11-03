@@ -25,7 +25,6 @@ import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 
 import com.datamining.project2.KMeansAlgorithm;
-import com.datamining.project2.Main;
 import com.datamining.project2.OutputObject;
 import com.mathworks.toolbox.javabuilder.MWException;
 
