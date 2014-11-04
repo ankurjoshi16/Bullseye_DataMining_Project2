@@ -27,7 +27,7 @@ public class DBScanAlgorithm {
 	public DBScanAlgorithm(String fileName) throws NumberFormatException,
 			IOException {
 		this.fileName = fileName;
-		initialDBScan = ProjectUtils.readFileToInitialMapNorm(fileName);
+		initialDBScan = ProjectUtils.readFileToInitialMap(fileName);
 	}
 
 	public DBScanAlgorithm(String fileName, double epsilon, int minPoints,
@@ -158,30 +158,21 @@ public class DBScanAlgorithm {
 		return neighbors;
 	}
 
-	public double calculateEpsilon() {
-		List<Double> nthNearestDistance = new ArrayList<Double>();
+	public double getEpsilon() {
+		List<Double> mainList = new ArrayList<Double>();
 		for (int i : initialDBScan.keySet()) {
-			List<DataPoint> dataPoints = new ArrayList<DataPoint>();
+			List<Double> distances = new ArrayList<Double>();
 			for (int j : initialDBScan.keySet()) {
-				if (i == j) {
-					continue;
-				}
-				DataPoint tdp = initialDBScan.get(j);
-				tdp.distance = ProjectUtils.getEuclideanDistance(initialDBScan
-						.get(i).getCoordinates(), tdp.getCoordinates());
-				dataPoints.add(tdp);
+				distances.add(ProjectUtils.getEuclideanDistance(initialDBScan
+						.get(i).getCoordinates(), initialDBScan.get(j)
+						.getCoordinates()));
 			}
-			Collections.sort(dataPoints, Collections.reverseOrder());
-			System.out.println(i + "  Output");
-
-			for (DataPoint dp : dataPoints) {
-				// System.out.print("  " + dp.distance);
-			}
-			nthNearestDistance.add(dataPoints.get(minPoints).distance);
+			Collections.sort(distances);
+			mainList.add(distances.get(minPoints+1));
 		}
-		Collections.sort(nthNearestDistance);
-		System.out.println("Decide from" + nthNearestDistance);
-		return ProjectUtils.getEpsilion(nthNearestDistance);
+		
+		Collections.sort(mainList);
+		return ProjectUtils.getEpsilion(mainList);
 	}
 
 	public String getFileName() {
@@ -201,12 +192,8 @@ public class DBScanAlgorithm {
 
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
-		DBScanAlgorithm dbscan = new DBScanAlgorithm("cho.txt");
-		dbscan.runDBScanAlgorithm();
-		// dbscan.calculateEpsilon();
-		// System.out.println("Total Outliers Found  : "+
-		// dbscan.getOutliers().size());
-
+		DBScanAlgorithm dbscan = new DBScanAlgorithm("dataset1.txt");
+		dbscan.getEpsilon();
 	}
 
 }

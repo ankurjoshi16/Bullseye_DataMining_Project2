@@ -152,6 +152,28 @@ public class DBScanUI extends JFrame {
 		btnExecute.setBounds(273, 90, 89, 23);
 		panel.add(btnExecute);
 
+		JButton eEps = new JButton("Estimate Eps");
+		eEps.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int minP = Integer.parseInt(minPnts.getText());
+
+				try {
+					DBScanAlgorithm dbscan = new DBScanAlgorithm(fileName
+							.getText(), 0, minP, chckbxNormalizeFile
+							.isSelected());
+					
+					epsilon.setText(Double.toString(dbscan.getEpsilon()).substring(0,4));
+				} catch (NumberFormatException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+
+			}
+
+		});
+		eEps.setBounds(410, 90, 124, 23);
+		panel.add(eEps);
+
 	}
 
 	public static void fillCombo(JComboBox temp, String variable) {
